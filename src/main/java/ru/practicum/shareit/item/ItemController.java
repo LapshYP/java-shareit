@@ -11,6 +11,7 @@ import ru.practicum.shareit.user.model.User;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * TODO Sprint add-controllers.
@@ -33,7 +34,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<ItemDto>> getItemByUserId (@RequestHeader("X-Sharer-User-Id") int userId){
+    public ResponseEntity<List<ItemDto>> getItemByUserId (@RequestHeader("X-Sharer-User-Id") int userId){
 
         return new ResponseEntity<>(itemService.itemGetByUserIdService(userId), HttpStatus.OK);
     }

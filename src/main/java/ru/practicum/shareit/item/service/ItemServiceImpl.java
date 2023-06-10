@@ -1,11 +1,12 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.repository.ItemRepository;
 
-import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -30,12 +31,16 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Collection<ItemDto> itemGetByUserIdService(int userId) {
+    public List<ItemDto> itemGetByUserIdService(int userId) {
         return itemRepository.getItemByUserId(userId);
     }
 
     @Override
     public List<ItemDto> searchItemByParam(String text) {
+        if (text.isEmpty()) {
+            throw new NotFoundException(HttpStatus.BAD_REQUEST,"Текст не должен быть пустым");
+        }
+
         return itemRepository.itemSearchByParamService(text);
     }
 

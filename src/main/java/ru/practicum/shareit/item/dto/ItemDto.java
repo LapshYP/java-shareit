@@ -14,7 +14,7 @@ public class ItemDto {
     String name;
     String description;
     Boolean available;
-    Owner owner;
+    int ownerId;
     ItemRequest request;
 
 }

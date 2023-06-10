@@ -7,15 +7,15 @@ import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.repository.UserRepositoryImpl;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 public class ItemRepositoryImpl implements ItemRepository {
-    // HashMap< USER_ID, ItemDto>
-    private final HashMap<Integer, HashSet<ItemDto>> itemStorage = new HashMap<>();
-    // HashMap< ITEM_ID, HashMap<USER_ID, ItemDto>>
-    private final HashMap<Integer, HashMap<Integer, ItemDto>> itemStorageWithUser = new HashMap<>();
+
+    private final HashMap<Integer, ItemDto> itemStorageWithUser = new HashMap<>();
     private final UserRepositoryImpl userRepository;
     private static int id = 1;
 
@@ -31,12 +31,11 @@ public class ItemRepositoryImpl implements ItemRepository {
 
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Юзера нет в базе данных");
         } else {
-            itemDto.setId(id++);
-            itemStorage.put(userId, new HashSet<>(Arrays.asList(itemDto)));
 
-            itemStorageWithUser.put(itemDto.getId(), new HashMap<>() {{
-                put(userId, itemDto);
-            }});
+            itemDto.setId(id++);
+            itemDto.setOwnerId(userId);
+
+            itemStorageWithUser.put(itemDto.getId(), itemDto);
         }
 
         return itemDto;
@@ -50,7 +49,7 @@ public class ItemRepositoryImpl implements ItemRepository {
 //            throw new DoubleException("Такой емейл уже существует");
 //        }
 //
-        boolean isRightUser = itemStorageWithUser.get(itemId).keySet().contains(userId);
+        boolean isRightUser = itemStorageWithUser.get(itemId).getOwnerId() == userId ? true : false;
         if (!isRightUser) {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "item can't update with other user");
         }
@@ -64,11 +63,9 @@ public class ItemRepositoryImpl implements ItemRepository {
         if (itemDto.getAvailable() != null) {
             updateItem.setAvailable(itemDto.getAvailable());
         }
-        itemStorage.put(userId, new HashSet<>(Arrays.asList(updateItem)));
 
-        itemStorageWithUser.put(itemId, new HashMap<>() {{
-            put(userId, itemDto);
-        }});
+
+        itemStorageWithUser.put(itemId, updateItem);
 
         return updateItem;
     }
@@ -76,26 +73,25 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public ItemDto getItemById(int itemDtoId, int userId) {
 
-        return itemStorageWithUser.get(itemDtoId).get(itemDtoId);
+        return itemStorageWithUser.get(itemDtoId);
     }
 
     @Override
-    public Collection<ItemDto> getItemByUserId(int userId) {
+    public List<ItemDto> getItemByUserId(int userId) {
 
-        return itemStorage.get(userId);
+        return itemStorageWithUser.values().stream().filter(item -> item.getOwnerId()==userId).collect(Collectors.toList());
     }
 
+    //|| item.getDescription().toLowerCase().contains(textToLowerCase)
     @Override
     public List<ItemDto> itemSearchByParamService(String text) {
-        return null;
+        String textToLowerCase = text.toLowerCase();
+        return itemStorageWithUser.values().stream().filter(item -> (item.getName().toLowerCase().contains(textToLowerCase)  && item.getDescription().toLowerCase().contains(textToLowerCase))).collect(Collectors.toList());
     }
 
 
     private ItemDto getItemById(int itemId) {
 
-        return itemStorage.entrySet().stream()
-                .flatMap(map -> map.getValue().stream())
-                .filter(itemDto -> itemDto.getId() == itemId)
-                .findFirst().orElse(null);
+        return itemStorageWithUser.get(itemId);
     }
 }
