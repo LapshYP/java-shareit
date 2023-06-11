@@ -4,14 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.user.model.User;
 
 import javax.validation.Valid;
-import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * TODO Sprint add-controllers.
@@ -23,29 +20,31 @@ public class ItemController {
     private final ItemService itemService;
 
     @GetMapping("/search")
-    public List<ItemDto> searchFilms(@RequestParam String text) {
-        return itemService.searchItemByParam(text);
+    public List<Item> searchFilms(@RequestParam(required = false) String text) {
+        return itemService.searchByParamService(text);
 
     }
-    @GetMapping("/{itemDtoId}")
-    public ResponseEntity<ItemDto> getItemById (@Valid @PathVariable int itemDtoId, @RequestHeader("X-Sharer-User-Id") int userId){
 
-        return new ResponseEntity<>(itemService.itemGetByIdService(itemDtoId, userId), HttpStatus.OK);
+    @GetMapping("/{itemDtoId}")
+    public ResponseEntity<Item> getItemById(@Valid @PathVariable int itemDtoId, @RequestHeader("X-Sharer-User-Id") int userId) {
+
+        return new ResponseEntity<>(itemService.getByIdService(itemDtoId, userId), HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<ItemDto>> getItemByUserId (@RequestHeader("X-Sharer-User-Id") int userId){
+    public ResponseEntity<List<Item>> getItemByUserId(@RequestHeader("X-Sharer-User-Id") int userId) {
 
-        return new ResponseEntity<>(itemService.itemGetByUserIdService(userId), HttpStatus.OK);
+        return new ResponseEntity<>(itemService.getByUserIdService(userId), HttpStatus.OK);
     }
+
     @PostMapping
-    public ResponseEntity<ItemDto> createItem(@Valid @RequestBody ItemDto itemDto, @RequestHeader("X-Sharer-User-Id") int userId) {
-        return new ResponseEntity<>(itemService.itemCreateService(itemDto, userId), HttpStatus.OK);
+    public ResponseEntity<Item> createItem(@Valid @RequestBody Item item, @RequestHeader("X-Sharer-User-Id") int userId) {
+        return new ResponseEntity<>(itemService.createService(item, userId), HttpStatus.OK);
     }
 
     @PatchMapping("/{itemId}")
-    public ResponseEntity<ItemDto> updateItem (@RequestBody ItemDto itemDto, @PathVariable int itemId,@RequestHeader("X-Sharer-User-Id") int userId) {
-        return new ResponseEntity<>(itemService.itemUpdateService(itemDto, itemId,userId), HttpStatus.OK);
+    public ResponseEntity<Item> updateItem(@RequestBody Item item, @PathVariable int itemId, @RequestHeader("X-Sharer-User-Id") int userId) {
+        return new ResponseEntity<>(itemService.updateService(item, itemId, userId), HttpStatus.OK);
     }
 
 }

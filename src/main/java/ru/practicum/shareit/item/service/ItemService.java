@@ -1,20 +1,20 @@
 package ru.practicum.shareit.item.service;
 
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
 
 import java.util.List;
 
 @Service
 public interface ItemService {
-    ItemDto itemCreateService(ItemDto itemDto, int userId);
+    Item createService(Item item, int userId);
 
-    ItemDto itemUpdateService(ItemDto itemDto, int itemId, int userId);
+    Item updateService(Item item, int itemId, int userId);
 
-    ItemDto itemGetByIdService(int itemDtoId, int userId);
+    Item getByIdService(int itemDtoId, int userId);
 
-    List<ItemDto> itemGetByUserIdService(int userId);
+    List<Item> getByUserIdService(int userId);
 
-    List<ItemDto> searchItemByParam(String text);
+    List<Item> searchByParamService(String text);
 
 }

@@ -3,9 +3,8 @@ package ru.practicum.shareit.user.repository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.exception.DoubleException;
+import ru.practicum.shareit.exception.DubleException;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +31,7 @@ public HashMap<Integer, User> getUserList (){
     @Override
     public User createUserRepo(User user) {
         if (userList.values().stream().filter(user1 -> user1.getEmail().equals(user.getEmail())).count()>0) {
-            throw new DoubleException("Уже существует");
+            throw new DubleException("Уже существует");
         } else {
             user.setId(id++);
             userList.put(user.getId(),user);
@@ -59,7 +58,7 @@ public HashMap<Integer, User> getUserList (){
             boolean hasEmail = userList.values().stream()
                     .anyMatch(user1 -> user1.getEmail().equals(user.getEmail()) && user1.getId() != userId);
             if (hasEmail) {
-                throw new DoubleException("Такой емейл уже существует");
+                throw new DubleException("Такой емейл уже существует");
             }
             updatedUser.setEmail(user.getEmail());
         }

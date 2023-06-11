@@ -1,6 +1,12 @@
 package ru.practicum.shareit.item.model;
 
+/**
+ * TODO Sprint add-controllers.
+ */
+
 import lombok.Data;
+import ru.practicum.shareit.item.model.Owner;
+import ru.practicum.shareit.item.model.ItemRequest;
 
 @Data
 public class Item {
@@ -10,4 +16,5 @@ public class Item {
     Boolean available;
     int ownerId;
     ItemRequest request;
+
 }
