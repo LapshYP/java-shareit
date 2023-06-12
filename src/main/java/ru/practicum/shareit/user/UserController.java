@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.mapper.Mapper;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -22,6 +23,7 @@ public class UserController {
 
     private final UserService userService;
     private final Mapper mapper;
+    private UserMapper userMapper;
 
     @PostMapping
     public User createUser (@Valid @RequestBody User user){
@@ -42,6 +44,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User getUser (@PathVariable int userId){
+
         return userService.getUserSerivece(userId);
     }
 

@@ -23,13 +23,15 @@ public class ItemServiceImpl implements ItemService {
     @SneakyThrows
     @Override
     public Item createService(Item item, int userId) {
-        if (item.getAvailable() == null) {
-            throw new NotFoundException(HttpStatus.BAD_REQUEST, "Вещь не доступна");
-        } else if (item.getDescription() == null || item.getDescription().isBlank()) {
-            throw new NotFoundException(HttpStatus.BAD_REQUEST, "Нет описания");
-        } else if (item.getName().isBlank()) {
-            throw new NotFoundException(HttpStatus.BAD_REQUEST, "Нет имени");
-        } else if (!userRepository.getUserList().keySet().contains(userId)) {
+//        if (item.getAvailable() == null) {
+//            throw new NotFoundException(HttpStatus.BAD_REQUEST, "Вещь не доступна");
+//        } else
+//            if (item.getDescription() == null || item.getDescription().isBlank()) {
+//            throw new NotFoundException(HttpStatus.NOT_FOUND, "Нет описания");
+//        } else if (item.getName().isBlank()) {
+//            throw new NotFoundException(HttpStatus.NOT_FOUND, "Нет имени");
+//        } else
+        if (!userRepository.getUserStorage().keySet().contains(userId)) {
 
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Юзера нет в базе данных");
         }
