@@ -15,11 +15,17 @@ public class ExceptionController {
     //400
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> badRequestException(MethodArgumentNotValidException ex) {
+    public Map<String, String> validExceptionException(MethodArgumentNotValidException ex) {
         String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the object has wrong fields";
-        return Map.of("BAD_REQUEST_Exception ", erroMessage);
+        return Map.of("MethodArgumentNotValidException ", erroMessage);
     }
-
+    //400
+    @ExceptionHandler({BadRequestException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> badRequestException(BadRequestException ex) {
+        String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the object has wrong fields";
+        return Map.of("BadRequestException ", erroMessage);
+    }
     //404
     @ExceptionHandler({NotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)

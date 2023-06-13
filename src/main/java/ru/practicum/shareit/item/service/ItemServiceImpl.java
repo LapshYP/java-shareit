@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.DubleException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
@@ -23,21 +24,21 @@ public class ItemServiceImpl implements ItemService {
     @SneakyThrows
     @Override
     public Item createService(Item item, int userId) {
-//        if (item.getAvailable() == null) {
-//            throw new NotFoundException(HttpStatus.BAD_REQUEST, "Вещь не доступна");
-//        } else
-//            if (item.getDescription() == null || item.getDescription().isBlank()) {
-//            throw new NotFoundException(HttpStatus.NOT_FOUND, "Нет описания");
-//        } else if (item.getName().isBlank()) {
-//            throw new NotFoundException(HttpStatus.NOT_FOUND, "Нет имени");
-//        } else
+
+        if (item.getAvailable() == null) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, item.getName() +" не доступна");
+        }
         if (!userRepository.getUserStorage().keySet().contains(userId)) {
 
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "Юзера нет в базе данных");
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id = '"+userId+" нет в базе данных");
         }
-        if (itemRepository.getItemStorage().values().stream().filter(item1 -> item1.getName().equals(item.getName())).count()>0) {
-            throw new DubleException("Уже существует");
+        if (itemRepository.getItemStorage().values()
+                .stream()
+                .filter(item1 -> (item1.getName().equals(item.getName())
+                        && item1.getDescription().equals(item.getDescription()))).count() > 0) {
+            throw new DubleException(item.getName() + " уже создана");
         }
+
 
         item.setId(id++);
         item.setOwnerId(userId);
@@ -78,9 +79,11 @@ public class ItemServiceImpl implements ItemService {
     public List<Item> searchByParamService(String text) {
 
         String textToLowerCase = text.toLowerCase();
-        if(text == null || text.isEmpty()) {
+        if (text == null || text.isEmpty()) {
             return new ArrayList<>();
-        } else { return itemRepository.itemSearchByParamService(textToLowerCase);}
+        } else {
+            return itemRepository.itemSearchByParamService(textToLowerCase);
+        }
 
     }
 
