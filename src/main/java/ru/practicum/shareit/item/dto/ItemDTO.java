@@ -4,7 +4,7 @@ import lombok.Data;
 import ru.practicum.shareit.item.model.ItemRequest;
 
 @Data
-public class Item {
+public class ItemDTO {
     int id;
     String name;
     String description;

@@ -2,9 +2,9 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 
+import org.mapstruct.factory.Mappers;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDTO;
-import ru.practicum.shareit.user.mapper.Mapper;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
@@ -22,30 +22,38 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
-    private final Mapper mapper;
-    private UserMapper userMapper;
+//
+    private UserMapper userMapper
+            = Mappers.getMapper(UserMapper.class);
 
     @PostMapping
-    public User createUser (@Valid @RequestBody User user){
-
-        return userService.createUserSerivce(user);
+    public UserDTO createUser (@Valid @RequestBody UserDTO userDTO){
+        User user = userMapper.userDTOToUser(userDTO);
+        User savedUser = userService.createUserSerivce(user);
+        UserDTO savedUserDTO = userMapper.userToUserDTO(savedUser);
+        return savedUserDTO;
     }
 
     @PatchMapping("/{userId}")
-    public User updateUser (@RequestBody User user, @PathVariable int userId) {
-
-        return userService.updateUserService(user,userId);
+    public UserDTO updateUser (@RequestBody UserDTO userDTO, @PathVariable int userDTOId) {
+        User user = userMapper.userDTOToUser(userDTO);
+        User updatedUser = userService.updateUserService(user,userDTOId);
+        UserDTO updatedUserDTO = userMapper.userToUserDTO(updatedUser);
+        return updatedUserDTO;
     }
 
     @DeleteMapping("/{userId}")
-    public User deleteUser (@PathVariable int userId){
-        return userService.deleteUserService(userId);
+    public UserDTO deleteUser (@PathVariable int userId){
+        User user =  userService.deleteUserService(userId);
+        UserDTO userDTO = userMapper.userToUserDTO(user);
+        return userDTO;
     }
 
     @GetMapping("/{userId}")
-    public User getUser (@PathVariable int userId){
-
-        return userService.getUserSerivece(userId);
+    public UserDTO getUser (@PathVariable int userId){
+        User user = userService.getUserSerivece(userId);
+        UserDTO userDTO = userMapper.userToUserDTO(user);
+        return userDTO;
     }
 
     @GetMapping
@@ -53,8 +61,7 @@ public class UserController {
     public List<UserDTO> getUsers() {
         return userService.getAll()
                 .stream()
-                .map(mapper::toDto)
+                .map(userMapper::userToUserDTO)
                 .collect(Collectors.toList());
     }
-
 }
