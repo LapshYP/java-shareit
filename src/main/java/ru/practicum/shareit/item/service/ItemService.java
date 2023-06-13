@@ -16,5 +16,4 @@ public interface ItemService {
     List<Item> getByUserIdService(int userId);
 
     List<Item> searchByParamService(String text);
-
 }
