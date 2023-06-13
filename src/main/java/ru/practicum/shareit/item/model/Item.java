@@ -1,9 +1,5 @@
 package ru.practicum.shareit.item.model;
 
-/**
- * TODO Sprint add-controllers.
- */
-
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -21,5 +17,4 @@ public class Item {
     Boolean available;
     int ownerId;
     ItemRequest request;
-
 }
