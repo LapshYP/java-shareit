@@ -16,7 +16,7 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private static int id = 1;
+    private int id = 1;
 
     @SneakyThrows
     @Override
