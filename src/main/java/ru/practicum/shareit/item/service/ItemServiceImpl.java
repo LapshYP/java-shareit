@@ -21,7 +21,7 @@ import java.util.List;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepositoryImpl userRepository;
-    private static int id = 1;
+    private final int id = 1;
 
     @SneakyThrows
     @Override
