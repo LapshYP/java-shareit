@@ -22,7 +22,6 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getAllUsers() {
-
       return new ArrayList<>(userStorage.values());
     }
 
@@ -37,7 +36,6 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User getUserById(int id) {
         return userStorage.get(id);
-
     }
 
     @SneakyThrows
@@ -52,6 +50,4 @@ public class UserRepositoryImpl implements UserRepository {
         userStorage.remove(userId);
         return getUserById(userId);
     }
-
-
 }

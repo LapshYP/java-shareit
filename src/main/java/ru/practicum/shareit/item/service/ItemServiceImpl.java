@@ -3,17 +3,21 @@ package ru.practicum.shareit.item.service;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.DubleException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,11 +25,14 @@ import java.util.List;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final ItemMapper itemMapper
+            = Mappers.getMapper(ItemMapper.class);
     private int id = 1;
 
     @SneakyThrows
     @Override
-    public Item createService(Item item, int userId) {
+    public ItemDTO createService(ItemDTO itemDTO, int userId) {
+        Item item = itemMapper.itemDTOToItem(itemDTO);
 
         if (item.getAvailable() == null) {
             log.error("Вещь с именем = {} и описанием {} не доступна", item.getName(), item.getDescription());
@@ -45,11 +52,14 @@ public class ItemServiceImpl implements ItemService {
         item.setId(id++);
         item.setOwnerId(userId);
         log.debug("Вещь с именем = {} и описанием {} создана", item.getName(), item.getDescription());
-        return itemRepository.createItemRepo(item, userId);
+        Item createdItem = itemRepository.createItemRepo(item, userId);
+        ItemDTO createdItemDTO = itemMapper.itemToItemDTO(createdItem);
+        return createdItemDTO;
     }
 
     @Override
-    public Item updateService(Item item, int itemId, int userId) {
+    public ItemDTO updateService(ItemDTO itemDTO, int itemId, int userId) {
+        Item item = itemMapper.itemDTOToItem(itemDTO);
 
         boolean isRightItem = itemRepository.getItemStorage().get(itemId) != null ? true : false;
         if (!isRightItem) {
@@ -62,7 +72,6 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не может быть обновлена этим пользователем");
         }
 
-
         Item updateItem = itemRepository.getItemById(itemId);
         if (item.getName() != null) {
             updateItem.setName(item.getName());
@@ -74,11 +83,14 @@ public class ItemServiceImpl implements ItemService {
             updateItem.setAvailable(item.getAvailable());
         }
         log.debug("Вещь с именем = {} и описанием {} обновлена", item.getName(), item.getDescription());
-        return itemRepository.updateItemRepo(updateItem, itemId, userId);
+
+        Item updatedItem = itemRepository.updateItemRepo(updateItem, itemId, userId);
+        ItemDTO updatedItemDTO = itemMapper.itemToItemDTO(updatedItem);
+        return updatedItemDTO;
     }
 
     @Override
-    public Item getByIdService(int itemId, int userId) {
+    public ItemDTO getByIdService(int itemId, int userId) {
         if (!userRepository.getUserStorage().containsKey(userId)) {
             log.error("Пользователя с id= {} нет в базе данных", userId);
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных");
@@ -87,22 +99,25 @@ public class ItemServiceImpl implements ItemService {
             log.error("Вещи с id= {} нет в базе данных", itemId);
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Вещь с id  = '" + itemId + " нет в базе данных");
         }
+        ItemDTO itemDTO = itemMapper.itemToItemDTO(itemRepository.getItemById(itemId, userId));
         log.debug("Вещь с id = {} созданная {} просмотрена", itemId, userId);
-        return itemRepository.getItemById(itemId, userId);
+        return itemDTO;
     }
 
     @Override
-    public List<Item> getByUserIdService(int userId) {
+    public List<ItemDTO> getByUserIdService(int userId) {
         if (!userRepository.getUserStorage().containsKey(userId)) {
             log.error("Пользователя с id= {} нет в базе данных", userId);
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных");
         }
         log.debug("Список всех вещей просмотрен");
-        return itemRepository.getItemByUserId(userId);
+        return itemRepository.getItemByUserId(userId).stream()
+                .map(itemMapper::itemToItemDTO)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Item> searchByParamService(String text) {
+    public List<ItemDTO> searchByParamService(String text) {
         if (text == null || text.isEmpty()) {
             log.debug("Запрос не задан");
             return new ArrayList<>();
@@ -113,7 +128,10 @@ public class ItemServiceImpl implements ItemService {
             return new ArrayList<>();
         } else {
             log.debug("Вещь по запросу {} найдена", text);
-            return itemRepository.itemSearchByParamService(textToLowerCase);
+            return itemRepository.itemSearchByParamService(textToLowerCase)
+                    .stream()
+                    .map(itemMapper::itemToItemDTO)
+                    .collect(Collectors.toList());
         }
     }
 }

@@ -53,6 +53,7 @@ public class ExceptionController {
         String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the header don't exists";
         return Map.of("MissingRequestHeaderException ", erroMessage);
     }
+
     //500
     @ExceptionHandler({MissingPathVariableException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
