@@ -8,7 +8,6 @@ import ru.practicum.shareit.user.model.User;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -22,7 +21,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getAllUsers() {
-      return new ArrayList<>(userStorage.values());
+        return new ArrayList<>(userStorage.values());
     }
 
     @SneakyThrows
