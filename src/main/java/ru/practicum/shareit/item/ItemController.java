@@ -36,7 +36,7 @@ public class ItemController {
 
     }
 
-    @GetMapping("/{itemDtoId}")
+    @GetMapping("/{itemId}")
     public ResponseEntity<ItemDTO> getItemById(@Valid @PathVariable int itemDtoId, @RequestHeader("X-Sharer-User-Id") int userId) {
         Item item = itemService.getByIdService(itemDtoId, userId);
         ItemDTO itemDTO = itemMapper.itemToItemDTO(item);
@@ -54,9 +54,9 @@ public class ItemController {
     }
 
     @PostMapping
-    public ResponseEntity<ItemDTO> createItem(@Valid @RequestBody ItemDTO itemDTO, @RequestHeader("X-Sharer-User-Id") int userDTOId) {
+    public ResponseEntity<ItemDTO> createItem(@Valid @RequestBody ItemDTO itemDTO, @RequestHeader("X-Sharer-User-Id") int userId) {
        Item item = itemMapper.itemDTOToItem(itemDTO);
-       Item createdItem = itemService.createService(item, userDTOId);
+       Item createdItem = itemService.createService(item, userId);
        ItemDTO createdItemDTO = itemMapper.itemToItemDTO(createdItem);
         return new ResponseEntity<>(createdItemDTO, HttpStatus.OK);
     }

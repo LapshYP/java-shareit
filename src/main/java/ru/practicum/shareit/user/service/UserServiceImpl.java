@@ -3,16 +3,18 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DubleException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -68,6 +70,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserSerivece(int userId) {
         log.debug("Пользователь с userId = {} просмотрен", userId);
+        if (userRepository.getUserStorage().values()
+                .stream()
+                .filter(user1 -> user1.getEmail().equals(userId)).count() == 0) {
+            log.error("Пользователь с id = {} не найден", userId);
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден");
+        }
         return userRepository.getUserById(userId);
     }
 }

@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.model.User;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,8 +23,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public List<User> getAllUsers() {
 
-        return userStorage.values().stream()
-                .collect(Collectors.toList());
+      return new ArrayList<>(userStorage.values());
     }
 
     @SneakyThrows

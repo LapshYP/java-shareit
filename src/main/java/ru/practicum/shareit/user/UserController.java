@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +20,7 @@ public class UserController {
 
     private final UserService userService;
 
-    private UserMapper userMapper
+    private final UserMapper userMapper
             = Mappers.getMapper(UserMapper.class);
 
     @PostMapping

@@ -2,6 +2,7 @@ package ru.practicum.shareit.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -52,4 +53,12 @@ public class ExceptionController {
         String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the header don't exists";
         return Map.of("MissingRequestHeaderException ", erroMessage);
     }
+    //500
+    @ExceptionHandler({MissingPathVariableException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, String> handleException(MissingPathVariableException ex) {
+        String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the pathVariable don't exists";
+        return Map.of("MissingPathVariableException  ", erroMessage);
+    }
+
 }
