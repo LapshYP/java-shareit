@@ -9,4 +9,5 @@ public class BadRequestException extends ResponseStatusException {
     public BadRequestException(HttpStatus httpStatus, String message) {
         super(httpStatus, message);
     }
+
 }

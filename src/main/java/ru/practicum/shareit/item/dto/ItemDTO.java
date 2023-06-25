@@ -1,16 +1,17 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.item.model.ItemRequest;
 
+import javax.persistence.Entity;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor
 public class ItemDTO {
     int id;
     @NotBlank
@@ -21,5 +22,5 @@ public class ItemDTO {
     @NotNull
     Boolean available;
     int ownerId;
-    ItemRequest request;
+    int request;
 }

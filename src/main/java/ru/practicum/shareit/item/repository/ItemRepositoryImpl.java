@@ -36,7 +36,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         return itemStorageWithUser
                 .values()
                 .stream()
-                .filter(item -> item.getOwnerId() == userId)
+                .filter(item -> item.getOwner().getId() == userId)
                 .collect(Collectors.toList());
     }
 
