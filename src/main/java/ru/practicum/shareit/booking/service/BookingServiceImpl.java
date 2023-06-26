@@ -42,6 +42,12 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public BookingForResponse makeBookingService(BookingDto bookingDto, int userId) {
+        Item item = itemRepoJpa.findById(bookingDto.getItemId()).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не найдена"));
+
+        if (itemRepoJpa.findById(bookingDto.getItemId()).get().getOwner().getId() == userId) {
+            throw new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не может быть заказана собственником этой вещи");
+
+        }
         if (bookingDto.getStart() == null ||
                 bookingDto.getEnd() == null) {
             throw new BadRequestException(HttpStatus.NOT_FOUND, "Ошибка времени создания заказа");
@@ -56,8 +62,7 @@ public class BookingServiceImpl implements BookingService {
         ) {
             throw new BadRequestException(HttpStatus.NOT_FOUND, "Ошибка времени создания заказа");
         }
-        Item item = itemRepoJpa.findById(bookingDto.getItemId()).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не найдена"));
-        if (item.getAvailable() == false) {
+         if (item.getAvailable() == false) {
             throw new BadRequestException(HttpStatus.NOT_FOUND, "вещь не доступна");
         }
 
