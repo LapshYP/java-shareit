@@ -121,8 +121,8 @@ public class BookingServiceImpl implements BookingService {
        result = bookingRepoJpa.findAllByBookerOrderByStartDesc(userBooker);
          } else if (state.equals(State.FUTURE.toString())) {
             result = bookingRepoJpa.findAllByBookerAndStartIsAfterOrderByStartDesc(
-                    userBooker, LocalDateTime.now());
-        } else throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");;
+                    userBooker, LocalDateTime.now().minusHours(1));
+        } else throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");
         List<BookingForResponse> bookingsForResponse = new ArrayList<>();
 
         for (Booking booking : result) {
@@ -140,7 +140,10 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> result = new ArrayList<>();
         if (state.equals(State.ALL.toString())) {
             result = bookingRepoJpa.getAllForOwner(userOwner.getId());
-        }
+        }else if (state.equals(State.FUTURE.toString())) {
+            result = bookingRepoJpa.findAllByOwnerAndStartIsAfterOrderByStartDesc(
+                    userOwner.getId(), LocalDateTime.now().minusHours(1));
+        } else throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");
         List<BookingForResponse> bookingsForResponse = new ArrayList<>();
 
         for (Booking booking : result) {
