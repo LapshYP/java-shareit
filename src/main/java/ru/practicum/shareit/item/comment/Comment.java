@@ -1,5 +1,6 @@
-package ru.practicum.shareit.booking.model;
+package ru.practicum.shareit.item.comment;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -8,33 +9,29 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "comments", schema = "public")
 @Getter
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Table(name = "bookings", schema = "public")
-public class Booking {
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-    int id;
-    @Column
-    @NotNull
-    LocalDateTime start;
-    @Column(name = "end_time", nullable = false)
-    @NotNull
-    LocalDateTime end;
+    private Long id;
+
+    @Column(name = "text")
+    private String content;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = false)
-    Item item;
+    @JoinColumn(name = "item_id")
+    private Item item;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booker_id", nullable = false)
-    User booker;
+    @JoinColumn(name = "author_id")
+    @JsonAlias({"authorName"})
+    private User author;
     @Column
-    @Enumerated(EnumType.ORDINAL)
-    Status status;
+    private LocalDateTime created;
 }

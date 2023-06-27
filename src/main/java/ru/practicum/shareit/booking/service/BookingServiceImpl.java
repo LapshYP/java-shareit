@@ -127,7 +127,12 @@ public class BookingServiceImpl implements BookingService {
          } else if (state.equals(State.FUTURE.toString())) {
             result = bookingRepoJpa.findAllByBookerAndStartIsAfterOrderByStartDesc(
                     userBooker, LocalDateTime.now().minusHours(1));
-        } else throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");
+        }
+//        else if (state.equals(State.WAITING.toString())) {
+//            result = bookingRepoJpa.findAllByBookerAndStateEqualsOrderByStartTimeDesc(
+//                    userBooker, State.WAITING );
+//        }
+        else throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");
         List<BookingForResponse> bookingsForResponse = new ArrayList<>();
 
         for (Booking booking : result) {
@@ -148,7 +153,11 @@ public class BookingServiceImpl implements BookingService {
         }else if (state.equals(State.FUTURE.toString())) {
             result = bookingRepoJpa.findAllByOwnerAndStartIsAfterOrderByStartDesc(
                     userOwner.getId(), LocalDateTime.now().minusHours(1));
-        } else throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");
+//        } else if (state.equals(State.WAITING.toString())) {
+//            result = bookingRepoJpa.findAllByOwnerAndStatus(
+//                    userOwner.getId(),State.WAITING.toString()  );
+      }
+        else throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");
         List<BookingForResponse> bookingsForResponse = new ArrayList<>();
 
         for (Booking booking : result) {

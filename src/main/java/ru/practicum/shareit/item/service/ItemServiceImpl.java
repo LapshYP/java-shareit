@@ -6,16 +6,28 @@ import lombok.extern.slf4j.Slf4j;
 import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.repossitory.BookingRepoJpa;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.DubleException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.comment.CommentDto;
+import ru.practicum.shareit.item.comment.CommentMapper;
+import ru.practicum.shareit.item.comment.CommentRepoJpa;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.dto.ItemLastNextDTO;
+import ru.practicum.shareit.item.mapper.ItemLastNextDtoMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepoJpa;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,11 +35,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class ItemServiceImpl implements ItemService {
+    private final BookingRepoJpa bookingRepoJpa;
     private final ItemRepoJpa itemRepoJpa;
     private final UserRepoJpa userRepoJpa;
     private final ItemMapper itemMapper
             = Mappers.getMapper(ItemMapper.class);
-
+    private final ItemLastNextDtoMapper itemLastNextDtoMapper
+            = Mappers.getMapper(ItemLastNextDtoMapper.class);
+    private final BookingMapper bookingMapper
+            = Mappers.getMapper(BookingMapper.class);
+    private final CommentRepoJpa commentRepoJpa;
+    private final CommentMapper commentMapper
+            = Mappers.getMapper(CommentMapper.class);
 
     @SneakyThrows
     @Override
@@ -38,7 +57,7 @@ public class ItemServiceImpl implements ItemService {
             log.error("Вещь с именем = {} и описанием {} не доступна", item.getName(), item.getDescription());
             throw new BadRequestException(HttpStatus.BAD_REQUEST, item.getName() + " не доступна");
         }
-        if (!(userRepoJpa.findAll().stream().filter(user -> user.getId()==userId).count() >0)) {
+        if (!(userRepoJpa.findAll().stream().filter(user -> user.getId() == userId).count() > 0)) {
             log.error("Пользователя с id= {} нет в базе данных", userId);
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных");
         }
@@ -90,37 +109,104 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDTO getByIdService(int itemId, int userId) {
-        if (!(userRepoJpa.findAll().stream().filter(user -> user.getId()==userId).count() >0)) {
-            log.error("Пользователя с id= {} нет в базе данных", userId);
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных");
-        }
-        if (!(itemRepoJpa.findAll().stream().filter(item -> item.getId()==itemId).count() >0)) {
-            log.error("Вещи с id= {} нет в базе данных", itemId);
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "Вещь с id  = '" + itemId + " нет в базе данных");
-        }
+    public ItemLastNextDTO getByIdService(int itemId, int userId) {
+//        if (!(userRepoJpa.findAll().stream().filter(user -> user.getId() == userId).count() > 0)) {
+//            log.error("Пользователя с id= {} нет в базе данных", userId);
+//            throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных");
+//        }
+//        if (!(itemRepoJpa.findAll().stream().filter(item -> item.getId()==itemId).count() >0)) {
+//            log.error("Вещи с id= {} нет в базе данных", itemId);
+//            throw new NotFoundException(HttpStatus.NOT_FOUND, "Вещь с id  = '" + itemId + " нет в базе данных");
+//        }
 
-        ItemDTO itemDTO = itemMapper.itemToItemDTO(itemRepoJpa.getById(itemId));
+        Item item = itemRepoJpa.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь с id  = '" + itemId + " нет в базе данных"));
+
+        User owner = userRepoJpa.findById(userId)
+                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
+
+        List<Booking> allBookings = item.getBookings();
+
+        Booking lastBooking = null;
+        Booking nextBooking = null;
+        LocalDateTime now = LocalDateTime.now();
+
+        int ownerId = item.getOwner().getId();
+        if (ownerId == userId && allBookings != null) {
+            allBookings.sort(Comparator.comparing(Booking::getStart));
+//            nextBooking = allBookings.stream().filter(booking -> now.isBefore(booking.getStart())).collect(Collectors.toList()).get(0);
+//            lastBooking = allBookings.stream().filter(booking -> now.isAfter(booking.getStart())).collect(Collectors.toList()).get(0);
+
+
+            int sizeL = allBookings.stream().filter(booking -> now.isAfter(booking.getStart()) && booking.getBooker().getId()==userId).collect(Collectors.toList()).size();
+            if (sizeL != 0) {
+                lastBooking = allBookings.stream().filter(booking -> now.isAfter(booking.getStart()) && booking.getBooker().getId()==userId).collect(Collectors.toList()).get(0);
+            }
+
+            int size = allBookings.stream().filter(booking -> now.isBefore(booking.getStart()) && booking.getBooker().getId()==userId).collect(Collectors.toList()).size();
+            if (size != 0) {
+                nextBooking = allBookings.stream().filter(booking -> now.isBefore(booking.getStart()) && booking.getBooker().getId()==userId).collect(Collectors.toList()).get(0);
+            }
+        }
+        ItemLastNextDTO itemLastNextDTO = itemLastNextDtoMapper.itemToItemLastNextDTO(item);
+        itemLastNextDTO.setLastBooking(bookingMapper.bookingToBookingLastNextItemDto(lastBooking));
+        itemLastNextDTO.setNextBooking(bookingMapper.bookingToBookingLastNextItemDto(nextBooking));
+        List<Comment> comments = item.getComments();
+        List<CommentDto> commentDtoForResponse = comments
+                .stream()
+                .map(commentMapper::commentToCommentDto)
+                .collect(Collectors.toList());
+        itemLastNextDTO.setComments(commentDtoForResponse);
+
         log.debug("Вещь с id = {} созданная {} просмотрена", itemId, userId);
-        return itemDTO;
+        return itemLastNextDTO;
     }
 
     @Override
-    public List<ItemDTO> getByUserIdService(int userId) {
-        if (!(userRepoJpa.findAll().stream().filter(user -> user.getId()==userId).count() >0)) {
-            log.error("Пользователя с id= {} нет в базе данных", userId);
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных");
-        }
+    public List<ItemLastNextDTO> getByUserIdService(int userId) {
+//        if (!(userRepoJpa.findAll().stream().filter(user -> user.getId() == userId).count() > 0)) {
+//            log.error("Пользователя с id= {} нет в базе данных", userId);
+//            throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных");
+//        }
         log.debug("Список всех вещей просмотрен");
+        User owner = userRepoJpa.findById(userId).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
 
-        return itemRepoJpa.findAll()
-                .stream()
-                .filter(item -> item.getOwner().getId() == userId)
-                .collect(Collectors.toList())
+        List<Item> items = itemRepoJpa.findAllByOwnerOrderById(owner);
+        List<ItemLastNextDTO> itemLastNextDTOList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        for (Item item : items) {
+            ItemLastNextDTO itemLastNextDTO = itemLastNextDtoMapper.itemToItemLastNextDTO(item);
+            List<Booking> allBookings = item.getBookings();
+            allBookings.sort(Comparator.comparing(Booking::getStart));
 
-                .stream()
-                .map(itemMapper::itemToItemDTO)
-                .collect(Collectors.toList());
+            Booking lastBooking = null;
+
+            int sizeL = allBookings.stream().filter(booking -> now.isAfter(booking.getStart()) && booking.getBooker().getId()==userId).collect(Collectors.toList()).size();
+            if (sizeL != 0) {
+                lastBooking = allBookings.stream().filter(booking -> now.isAfter(booking.getStart())).collect(Collectors.toList()).get(0);
+            }
+
+            Booking nextBooking = null;
+            int size = allBookings.stream().filter(booking -> now.isBefore(booking.getStart()) && booking.getBooker().getId()==userId).collect(Collectors.toList()).size();
+            if (size != 0) {
+                nextBooking = allBookings.stream().filter(booking -> now.isBefore(booking.getStart())).collect(Collectors.toList()).get(0);
+            }
+
+            itemLastNextDTO.setLastBooking(bookingMapper.bookingToBookingLastNextItemDto(lastBooking));
+            itemLastNextDTO.setNextBooking(bookingMapper.bookingToBookingLastNextItemDto(nextBooking));
+
+
+            List<Comment> comments = commentRepoJpa.findAllByItemOrderById(item);
+            List<CommentDto> commentDtos = comments.stream()
+                    .map(commentMapper::commentToCommentDto).collect(Collectors.toList());
+            itemLastNextDTO.setComments(commentDtos);
+
+            itemLastNextDTOList.add(itemLastNextDTO);
+        }
+
+        return itemLastNextDTOList;
+
     }
 
     @Override
@@ -146,5 +232,41 @@ public class ItemServiceImpl implements ItemService {
                     .map(itemMapper::itemToItemDTO)
                     .collect(Collectors.toList());
         }
+    }
+
+    @Override
+    public CommentDto addComment(int userId, int itemId, CommentDto commentDto) {
+        if (commentDto.getContent().isBlank()) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Текст комментария не может быть пустым");
+        }
+        User user = userRepoJpa.findById(userId).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "комментарий  к вещи с ID = " + itemId
+                        + " пользователем с id = " + userId + " ; отсутствует запись о пользователе."));
+        Item item = itemRepoJpa.findById(itemId).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "комментарий к вещи с ID = " + itemId
+                        + " пользователем с id = " + userId + " ; отсутствует запись о вещи."));
+        List<Booking> bookings = item.getBookings();
+//        List<Booking> bookings1 = bookings
+//                .stream()
+//                .filter(booking -> (booking.getBooker().getId() == userId)
+//                && booking.getEnd().isBefore(LocalDateTime.now())
+//                )
+//                .collect(Collectors.toList());
+        if ( bookings
+                .stream()
+                .filter(booking -> (booking.getBooker().getId() == userId)
+                     && booking.getEnd().isBefore(LocalDateTime.now())
+                )
+                .collect(Collectors.toList()).size() == 0) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST,
+                    "Комментарий от пользователя который не арендовал вещь");
+        }
+
+
+        Comment comment = commentMapper.commentDtoToComment(commentDto);
+        comment.setItem(item);
+        comment.setAuthor(user);
+        comment.setCreated(LocalDateTime.now());
+        return commentMapper.commentToCommentDto(commentRepoJpa.save(comment));
     }
 }
