@@ -25,12 +25,12 @@ public class ItemController {
 
     @GetMapping("/{itemId}")
     public ResponseEntity<ItemLastNextDTO> getItemById(@Valid @PathVariable int itemId, @RequestHeader("X-Sharer-User-Id") int userId) {
-        return new ResponseEntity<>(itemService.getByIdService(itemId, userId), HttpStatus.OK);
+        return new ResponseEntity<>(itemService.getByOwnerIdService(itemId, userId), HttpStatus.OK);
     }
 
     @GetMapping
     public ResponseEntity<List<ItemLastNextDTO>> getItemByUserId(@RequestHeader("X-Sharer-User-Id") int userId) {
-        return new ResponseEntity<>(itemService.getByUserIdService(userId), HttpStatus.OK);
+        return new ResponseEntity<>(itemService.getByBookerIdService(userId), HttpStatus.OK);
     }
 
     @PostMapping

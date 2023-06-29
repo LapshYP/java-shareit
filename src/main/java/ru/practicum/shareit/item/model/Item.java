@@ -34,7 +34,7 @@ public class Item {
     @NotNull
     @Column
     Boolean available;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
     private User owner;
     @Column

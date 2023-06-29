@@ -3,16 +3,14 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.factory.Mappers;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DubleException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDTO;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
-import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,9 +21,10 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepoJpa userRepoJpa;
-    private final UserMapper userMapper
-            = Mappers.getMapper(UserMapper.class);
-    private int id = 1;
+    //    private final UserMapper userMapper
+//            = Mappers.getMapper(UserMapper.class);
+    private final ModelMapper mapper = new ModelMapper();
+//mapper.map(item, ToClass.class);
 
     //
 //        if (userRepository.getUserStorage().values()
@@ -40,12 +39,14 @@ public class UserServiceImpl implements UserService {
     @SneakyThrows
     @Override
     public UserDTO createUserSerivce(UserDTO userDTO) {
-        User user = userMapper.userDTOToUser(userDTO);
+        //  User user = userMapper.userDTOToUser(userDTO);
+        User user = mapper.map(userDTO, User.class);
 
         User savedUser = userRepoJpa.save(user);
         log.debug("Пользователь с email = {} и именем {} добавлен", user.getEmail(), user.getName());
 
-        UserDTO savedUserDTO = userMapper.userToUserDTO(savedUser);
+        //  UserDTO savedUserDTO = userMapper.userToUserDTO(savedUser);
+        UserDTO savedUserDTO = mapper.map(savedUser, UserDTO.class);
         return savedUserDTO;
     }
 
@@ -53,15 +54,17 @@ public class UserServiceImpl implements UserService {
     public List<UserDTO> getAll() {
 
         return userRepoJpa.findAll().stream()
-                .map(userMapper::userToUserDTO)
+                .map(user -> {
+                    return mapper.map(user, UserDTO.class);
+                })
                 .collect(Collectors.toList());
     }
 
     @SneakyThrows
     @Override
     public UserDTO updateUserService(UserDTO userDTO, int userId) {
-        User user = userMapper.userDTOToUser(userDTO);
-
+        //  User user = userMapper.userDTOToUser(userDTO);
+        User user = mapper.map(userDTO, User.class);
 
         User updatedUser = userRepoJpa.getReferenceById(userId);
         if (user.getName() != null) {
@@ -80,14 +83,18 @@ public class UserServiceImpl implements UserService {
         userRepoJpa.save(updatedUser);
         log.debug("Пользователь с email = {} и именем {} обновлен", user.getEmail(), user.getName());
 
-        UserDTO updatedUserDTO = userMapper.userToUserDTO(updatedUser);
+        //   UserDTO updatedUserDTO = userMapper.userToUserDTO(updatedUser);
+
+        UserDTO updatedUserDTO = mapper.map(updatedUser, UserDTO.class);
+
         return updatedUserDTO;
     }
 
     @Override
     public UserDTO deleteUserService(int userId) {
 
-        UserDTO userDTO = userMapper.userToUserDTO(userRepoJpa.getById(userId));
+        //  UserDTO userDTO = userMapper.userToUserDTO(userRepoJpa.getById(userId));
+        UserDTO userDTO = mapper.map(userRepoJpa.getById(userId), UserDTO.class);
         userRepoJpa.deleteById(userId);
         log.debug("Пользователь с userId = {} удален", userId);
         return userDTO;
@@ -103,7 +110,8 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден");
         }
         User user = userRepoJpa.getById(userId);
-        UserDTO userDTO = userMapper.userToUserDTO(user);
+        //    UserDTO userDTO = userMapper.userToUserDTO(user);
+        UserDTO userDTO = mapper.map(user, UserDTO.class);
         log.debug("Пользователь с userId = {} просмотрен", userId);
         return userDTO;
     }

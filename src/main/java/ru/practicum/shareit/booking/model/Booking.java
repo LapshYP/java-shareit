@@ -35,6 +35,6 @@ public class Booking {
     @JoinColumn(name = "booker_id", nullable = false)
     User booker;
     @Column
-    @Enumerated(EnumType.ORDINAL)
+    @Enumerated(EnumType.STRING)
     Status status;
 }

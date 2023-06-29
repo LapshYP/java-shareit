@@ -13,9 +13,9 @@ public interface ItemService {
 
     ItemDTO updateService(ItemDTO itemDTO, int itemId, int userId);
 
-    ItemLastNextDTO getByIdService(int itemId, int userId);
+    ItemLastNextDTO getByOwnerIdService(int itemId, int userId);
 
-    List<ItemLastNextDTO> getByUserIdService(int userId);
+    List<ItemLastNextDTO> getByBookerIdService(int userId);
 
     List<ItemDTO> searchByParamService(String text);
 
