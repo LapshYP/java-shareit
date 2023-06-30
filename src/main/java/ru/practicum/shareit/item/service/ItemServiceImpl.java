@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingLastNextItemDto;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repossitory.BookingRepoJpa;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.DubleException;
@@ -136,42 +137,41 @@ public class ItemServiceImpl implements ItemService {
 
         int ownerId = item.getOwner().getId();
         if (ownerId == userId && allBookings != null) {
-            allBookings.sort(Comparator.comparing(Booking::getStart));
+            //   allBookings.sort(Comparator.comparing(Booking::getStart));
 
             int sizeLast = allBookings
                     .stream()
-                    .filter(booking -> now.isAfter(booking.getStart()) &&
-                            booking.getItem().getOwner().getId() == userId)
+                    .filter(booking -> now.isAfter(booking.getStart()))
                     .collect(Collectors.toList()).size();
             if (sizeLast != 0) {
                 lastBooking = allBookings
                         .stream()
-                        .filter(booking -> now.isAfter(booking.getStart()) && booking.getItem().getOwner().getId() == userId)
+                        .sorted(Comparator.comparing(Booking::getStart).reversed())
+                        .filter(booking -> now.isAfter(booking.getStart()))
                         .collect(Collectors.toList()).get(0);
             }
 
             int sizeNext = allBookings
                     .stream()
-                    .filter(booking -> now.isBefore(booking.getStart()) &&
-                            booking.getItem().getOwner().getId() == userId)
+                    .filter(booking -> now.isBefore(booking.getStart()))
                     .collect(Collectors.toList()).size();
             if (sizeNext != 0) {
                 nextBooking = allBookings
                         .stream()
-                        .filter(booking -> now.isBefore(booking.getStart()) &&
-                                booking.getItem().getOwner().getId() == userId)
+                        .sorted(Comparator.comparing(Booking::getStart))
+                        .filter(booking -> now.isBefore(booking.getStart()))
                         .collect(Collectors.toList()).get(0);
             }
         }
         //ItemLastNextDTO itemLastNextDTO = itemLastNextDtoMapper.itemToItemLastNextDTO(item);
         ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
         //  itemLastNextDTO.setLastBooking(bookingMapper.bookingToBookingLastNextItemDto(lastBooking));
-        if (lastBooking != null) {
+        if (lastBooking != null && lastBooking.getStatus() != Status.REJECTED) {
             itemLastNextDTO.setLastBooking(mapper.map(lastBooking, BookingLastNextItemDto.class));
         } else itemLastNextDTO.setLastBooking(null);
 
         //  itemLastNextDTO.setNextBooking(bookingMapper.bookingToBookingLastNextItemDto(nextBooking));
-        if (nextBooking != null) {
+        if (nextBooking != null && nextBooking.getStatus() != Status.REJECTED) {
             itemLastNextDTO.setNextBooking(mapper.map(nextBooking, BookingLastNextItemDto.class));
         } else itemLastNextDTO.setNextBooking(null);
 
@@ -189,7 +189,6 @@ public class ItemServiceImpl implements ItemService {
         log.debug("Вещь с id = {} созданная {} просмотрена", itemId, userId);
         return itemLastNextDTO;
     }
-
     @Override
     public List<ItemLastNextDTO> getByBookerIdService(int userId) {
 //        if (!(userRepoJpa.findAll().stream().filter(user -> user.getId() == userId).count() > 0)) {

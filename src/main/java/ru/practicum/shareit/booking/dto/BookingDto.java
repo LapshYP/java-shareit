@@ -21,11 +21,11 @@ public class BookingDto {
     private int id;
     @NotNull
     private int itemId;
-  // @JsonAlias({"start"})
-   @JsonProperty( "start" )
+   @JsonAlias({"start"})
+ //  @JsonProperty( "start" )
     private LocalDateTime start;
-   // @JsonAlias({"end"})
-    @JsonProperty( "end" )
+   @JsonAlias({"end"})
+  //  @JsonProperty( "end" )
     private LocalDateTime end;
     private Item item;
     private User booker;

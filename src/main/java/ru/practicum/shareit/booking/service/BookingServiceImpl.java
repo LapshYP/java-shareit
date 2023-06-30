@@ -142,19 +142,20 @@ public class BookingServiceImpl implements BookingService {
         } else if (state.equals(State.CURRENT.toString())) {
             result = bookingRepoJpa.findAllBookingsForBookerWithStartAndEnd(
                     booker, LocalDateTime.now(), LocalDateTime.now());
+
         } else if (state.equals(State.PAST.toString())) {
             result = bookingRepoJpa.findAllByBookerAndEndIsBeforeOrderByStartDesc(
                     booker, LocalDateTime.now());
         } else throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");
-        List<BookingForResponse> bookingsForResponse = new ArrayList<>();
+        List<BookingForResponse> bookingsListForResponse = new ArrayList<>();
 
         for (Booking booking : result) {
             //  BookingForResponse bookingForResponse = bookingMapper.bookingToResponseBookingDto(booking);
             BookingForResponse bookingForResponse = mapper.map(booking, BookingForResponse.class);
-            bookingsForResponse.add(bookingForResponse);
+            bookingsListForResponse.add(bookingForResponse);
         }
 
-        return bookingsForResponse;
+        return bookingsListForResponse;
     }
 
     @Override
