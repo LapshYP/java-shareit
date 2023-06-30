@@ -8,7 +8,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.List;
 
 @Repository
-public interface ItemRepoJpa extends JpaRepository <Item,Integer> {
+public interface ItemRepoJpa extends JpaRepository<Item, Integer> {
     List<Item> findAllByOwnerOrderById(User owner);
 
 }

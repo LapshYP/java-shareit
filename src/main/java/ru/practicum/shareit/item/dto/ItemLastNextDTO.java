@@ -15,16 +15,16 @@ import java.util.List;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class ItemLastNextDTO {
-    private   int id;
+    private int id;
     @NotBlank
-    private  String name;
+    private String name;
     @NotBlank
     @NotNull
-    private  String description;
+    private String description;
     @NotNull
-    private  Boolean available;
-    private  int ownerId;
-    private  int request;
+    private Boolean available;
+    private int ownerId;
+    private int request;
     private BookingLastNextItemDto lastBooking;
     private BookingLastNextItemDto nextBooking;
     @JsonProperty("comments")

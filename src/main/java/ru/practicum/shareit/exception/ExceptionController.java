@@ -30,6 +30,7 @@ public class ExceptionController {
         String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the object has wrong fields";
         return Map.of("ConstraintViolationException ", erroMessage);
     }
+
     //400
     @ExceptionHandler({BadRequestException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -71,6 +72,7 @@ public class ExceptionController {
         String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the pathVariable don't exists";
         return Map.of("MissingPathVariableException  ", erroMessage);
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleException(final UnsupportedStatusException ex) {

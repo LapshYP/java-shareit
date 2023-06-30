@@ -12,9 +12,9 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 public class UserDTO {
     private int id;
-    @NotEmpty(message = "Name cannot be empty")
+    @NotEmpty(message = "Поле имя не может быть пустым")
     private String name;
-    @Email(message = "Email is not valid", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
-    @NotEmpty(message = "Email cannot be empty")
+    @Email(message = "Email не прошел валидацию", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
+    @NotEmpty(message = "Email не должен быть пустым")
     private String email;
 }
