@@ -20,8 +20,7 @@ public class ExceptionController {
     @ExceptionHandler({MethodArgumentNotValidException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> validExceptionException(MethodArgumentNotValidException ex) {
-        String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the object has wrong fields";
-        return Map.of("MethodArgumentNotValidException ", erroMessage);
+        return Map.of("MethodArgumentNotValidException ", ex.getMessage());
     }
 
     //400
@@ -87,7 +86,6 @@ public class ExceptionController {
     public ResponseEntity<?> handleException(final UnsupportedStatusException ex) {
         String msg = "{\"error\":\"Unknown state: UNSUPPORTED_STATUS\",\n" +
                 "\"message\":\"UNSUPPORTED_STATUS\"}";
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg);
     }
 }
