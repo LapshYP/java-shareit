@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.DubleException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDTO;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
@@ -27,6 +29,7 @@ public class UserServiceImpl implements UserService {
     //mapper.map(item, ToClass.class);
     @SneakyThrows
     @Override
+    @Transactional
     public UserDTO createUserSerivce(UserDTO userDTO) {
         User user = mapper.map(userDTO, User.class);
         User savedUser = userRepoJpa.save(user);
