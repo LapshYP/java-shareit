@@ -23,5 +23,4 @@ public interface ItemService {
     List<ItemDTO> searchByParamService(String text);
 
     CommentDto addComment(int userId, int itemId, CommentDto commentDto);
-
 }
