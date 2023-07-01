@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.model.State;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.user.dto.UserDTO;
 
@@ -26,6 +27,7 @@ public class BookingForResponse {
     LocalDateTime endTime;
     ItemDTO item;
     UserDTO booker;
-    State state;
+//    State state;
+     Status status;
 
 }

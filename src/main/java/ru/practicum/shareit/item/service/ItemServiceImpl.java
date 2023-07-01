@@ -291,9 +291,10 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public CommentDto addComment(int userId, int itemId, CommentDto commentDto) {
         if (commentDto.getContent().isBlank()) {
-            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Текст комментария не может быть пустым");
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Комментарий не должен быть пустым");
         }
-        User user = userRepoJpa.findById(userId).orElseThrow(() ->
+        User user = userRepoJpa.findById(userId)
+                .orElseThrow(() ->
                 new NotFoundException(HttpStatus.NOT_FOUND, "комментарий  к вещи с id = '" + itemId
                         + "' пользователем с id = " + userId + " ; отсутствует запись о пользователе."));
         Item item = itemRepoJpa.findById(itemId).orElseThrow(() ->
@@ -313,7 +314,7 @@ public class ItemServiceImpl implements ItemService {
                 )
                 .collect(Collectors.toList()).size() == 0) {
             throw new BadRequestException(HttpStatus.BAD_REQUEST,
-                    "Комментировать может только пользователь арендующий вещь");
+                    "Комментировать может только арендатор вещи");
         }
 
 
