@@ -5,7 +5,6 @@ import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingForResponse;
 import ru.practicum.shareit.booking.model.Booking;
@@ -26,7 +25,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
     private final BookingRepoJpa bookingRepoJpa;
@@ -36,7 +34,6 @@ public class BookingServiceImpl implements BookingService {
     private final ModelMapper mapper = new ModelMapper();
 
     @Override
-    @Transactional
     public BookingForResponse makeBookingService(BookingDto bookingDto, int userId) {
         Item item = itemRepoJpa.findById(bookingDto.getItemId()).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не найдена"));
 

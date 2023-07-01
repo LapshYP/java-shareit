@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingLastNextItemDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
@@ -31,7 +30,7 @@ import java.util.stream.Collectors;
 ;
 
 @Service
-@Transactional(readOnly = true)
+
 @RequiredArgsConstructor
 @Slf4j
 public class ItemServiceImpl implements ItemService {
@@ -43,7 +42,7 @@ public class ItemServiceImpl implements ItemService {
 
     @SneakyThrows
     @Override
-    @Transactional
+
     public ItemDTO createService(ItemDTO itemDTO, int userId) {
         Item item = mapper.map(itemDTO, Item.class);
 
