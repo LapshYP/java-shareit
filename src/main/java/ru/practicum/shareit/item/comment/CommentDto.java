@@ -2,10 +2,8 @@ package ru.practicum.shareit.item.comment;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDateTime;
 
@@ -13,12 +11,13 @@ import java.time.LocalDateTime;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentDto {
     private Long id;
     @JsonProperty("text")
     private String content;
-    @JsonAlias({"authorName"})
+   // @JsonAlias({"authorName"})
     private String authorName;
-    @JsonProperty
+   // @JsonProperty
     private LocalDateTime created;
 }

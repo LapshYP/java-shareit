@@ -1,5 +1,6 @@
 package ru.practicum.shareit.exception;
 
+import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -57,6 +58,13 @@ public class ExceptionController {
         return Map.of("DubleException ", erroMessage);
     }
 
+    //409
+    @ExceptionHandler(JdbcSQLIntegrityConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<String> handleConstraintViolationException(JdbcSQLIntegrityConstraintViolationException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body("Constraint violation occurred: " + ex.getMessage());
+    }
     //500
     @ExceptionHandler({MissingRequestHeaderException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

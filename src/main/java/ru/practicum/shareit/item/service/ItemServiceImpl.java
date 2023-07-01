@@ -11,7 +11,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repossitory.BookingRepoJpa;
 import ru.practicum.shareit.exception.BadRequestException;
-import ru.practicum.shareit.exception.DubleException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
@@ -58,17 +57,16 @@ public class ItemServiceImpl implements ItemService {
             log.error("Вещь с именем = {} и описанием {} не доступна", item.getName(), item.getDescription());
             throw new BadRequestException(HttpStatus.BAD_REQUEST, item.getName() + " не доступна");
         }
-        if (!(userRepoJpa.findAll().stream().filter(user -> user.getId() == userId).count() > 0)) {
-            log.error("Пользователя с id= {} нет в базе данных", userId);
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных");
-        }
-        if (itemRepoJpa.findAll()
-                .stream()
-                .filter(item1 -> (item1.getName().equals(item.getName())
-                        && item1.getDescription().equals(item.getDescription()))).count() > 0) {
-            log.error("Вещь с именем = {} и описанием {} уже создана", item.getName(), item.getDescription());
-            throw new DubleException(item.getName() + " уже создана");
-        }
+        userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
+    //   itemRepoJpa.findItemByNameAndDescription(item.getName(), item.getDescription()).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь с именем '" + item.getName() + "' не найденf"));
+
+//        if (itemRepoJpa.findAll()
+//                .stream()
+//                .filter(item1 -> (item1.getName().equals(item.getName())
+//                        && item1.getDescription().equals(item.getDescription()))).count() > 0) {
+//            log.error("Вещь с именем = {} и описанием {} уже создана", item.getName(), item.getDescription());
+//            throw new DubleException(item.getName() + " уже создана");
+//        }
 
         item.setOwner(userRepoJpa.getReferenceById(userId));
         log.debug("Вещь с именем = {} и описанием {} создана", item.getName(), item.getDescription());
@@ -83,16 +81,18 @@ public class ItemServiceImpl implements ItemService {
         //   Item item = itemMapper.itemDTOToItem(itemDTO);
         Item item = mapper.map(itemDTO, Item.class);
 
-        boolean isRightItem = itemRepoJpa.getById(itemId) != null ? true : false;
-        if (!isRightItem) {
-            log.error("Вещь с именем = {} и индификатором {} не существует", item.getName(), itemId);
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "Вещь c id = '" + itemId + " не существует");
-        }
-        boolean isRightUser = itemRepoJpa.getById(itemId).getOwner().getId() == userId ? true : false;
-        if (!isRightUser) {
-            log.error("Вещь с именем = {} и описанием {} не может быть обновлена", item.getName(), userId);
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не может быть обновлена этим пользователем");
-        }
+//        boolean isRightItem = itemRepoJpa.getById(itemId) != null ? true : false;
+//        if (!isRightItem) {
+//            log.error("Вещь с именем = {} и индификатором {} не существует", item.getName(), itemId);
+//            throw new NotFoundException(HttpStatus.NOT_FOUND, "Вещь c id = '" + itemId + " не существует");
+//        }
+        itemRepoJpa.findById(itemId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь c id = '" + item.getId() + "' не существует"));
+//        boolean isRightUser = itemRepoJpa.getById(itemId).getOwner().getId() == userId ? true : false;
+//        if (!isRightUser) {
+//            log.error("Вещь с именем = {} и описанием {} не может быть обновлена", item.getName(), userId);
+//            throw new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не может быть обновлена этим пользователем");
+//        }
+        userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не может быть обновлена этим пользователем id = '" + userId + "' "));
 
         Item updateItem = itemRepoJpa.getById(itemId);
         if (item.getName() != null) {
@@ -189,6 +189,7 @@ public class ItemServiceImpl implements ItemService {
         log.debug("Вещь с id = {} созданная {} просмотрена", itemId, userId);
         return itemLastNextDTO;
     }
+
     @Override
     public List<ItemLastNextDTO> getByBookerIdService(int userId) {
 //        if (!(userRepoJpa.findAll().stream().filter(user -> user.getId() == userId).count() > 0)) {
@@ -211,13 +212,13 @@ public class ItemServiceImpl implements ItemService {
             Booking lastBooking = null;
 
             int sizeLast = allBookings.stream()
-                    .filter(booking -> now.isAfter(booking.getStart())  )
+                    .filter(booking -> now.isAfter(booking.getStart()))
                     .collect(Collectors.toList()).size();
             if (sizeLast != 0) {
                 lastBooking = allBookings.stream()
                         .filter(booking -> now.isAfter(booking.getStart())
-                           //     && booking.getBooker().getId() == userId
-                                )
+                                //     && booking.getBooker().getId() == userId
+                        )
                         .collect(Collectors.toList()).get(0);
             }
 
@@ -293,11 +294,11 @@ public class ItemServiceImpl implements ItemService {
             throw new BadRequestException(HttpStatus.BAD_REQUEST, "Текст комментария не может быть пустым");
         }
         User user = userRepoJpa.findById(userId).orElseThrow(() ->
-                new NotFoundException(HttpStatus.NOT_FOUND, "комментарий  к вещи с ID = " + itemId
-                        + " пользователем с id = " + userId + " ; отсутствует запись о пользователе."));
+                new NotFoundException(HttpStatus.NOT_FOUND, "комментарий  к вещи с id = '" + itemId
+                        + "' пользователем с id = " + userId + " ; отсутствует запись о пользователе."));
         Item item = itemRepoJpa.findById(itemId).orElseThrow(() ->
-                new NotFoundException(HttpStatus.NOT_FOUND, "комментарий к вещи с ID = " + itemId
-                        + " пользователем с id = " + userId + " ; отсутствует запись о вещи."));
+                new NotFoundException(HttpStatus.NOT_FOUND, "комментарий к вещи с id = '" + itemId
+                        + "' пользователем с id = '" + userId + "' - отсутствует запись о вещи."));
         List<Booking> bookings = item.getBookings();
 //        List<Booking> bookings1 = bookings
 //                .stream()
@@ -312,7 +313,7 @@ public class ItemServiceImpl implements ItemService {
                 )
                 .collect(Collectors.toList()).size() == 0) {
             throw new BadRequestException(HttpStatus.BAD_REQUEST,
-                    "Комментарий от пользователя который не арендовал вещь");
+                    "Комментировать может только пользователь арендующий вещь");
         }
 
 
