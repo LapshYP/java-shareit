@@ -1,7 +1,5 @@
 package ru.practicum.shareit.booking.dto;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.model.Status;
@@ -22,12 +20,8 @@ public class BookingDto {
     int id;
     @NotNull
     int itemId;
-   // @JsonAlias({"start"})
-     @JsonProperty( "start" )
     @NotNull
     private LocalDateTime start;
-    //   @JsonAlias({"end"})
-    @JsonProperty("end")
     @NotNull
     LocalDateTime end;
     Item item;

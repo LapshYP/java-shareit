@@ -16,8 +16,6 @@ public class CommentDto {
     private Long id;
     @JsonProperty("text")
     private String content;
-   // @JsonAlias({"authorName"})
-    private String authorName;
-   // @JsonProperty
-    private LocalDateTime created;
+     private String authorName;
+     private LocalDateTime created;
 }

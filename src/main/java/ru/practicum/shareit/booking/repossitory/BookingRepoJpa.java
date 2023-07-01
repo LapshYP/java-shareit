@@ -13,12 +13,6 @@ import java.util.List;
 @Repository
 public interface BookingRepoJpa extends JpaRepository<Booking, Integer> {
 
-
-    //     @Query("SELECT b" +
-//             " FROM Booking AS b" +
-//             " WHERE b.booker = ?1" +
-//             " ORDER BY b.start DESC")
-//    List<Booking> getAllForUser(User userBooker);
     @Query("SELECT b " +
             "FROM Booking AS b " +
             "JOIN b.item AS i " +
@@ -42,9 +36,6 @@ public interface BookingRepoJpa extends JpaRepository<Booking, Integer> {
             "where b.booker = ?1 and b.start < ?2 and b.end > ?3 " +
             "order by b.start asc ")
     List<Booking> findAllBookingsForBookerWithStartAndEnd(User userBooker, LocalDateTime now, LocalDateTime now1);
-
-    //
-    List<Booking> findAllByBookerAndStartIsBeforeOrderByStartDesc(User userBooker, LocalDateTime now);
 
     List<Booking> findAllByBookerAndStatusEqualsOrderByStartDesc(User userBooker, Status status);
 
@@ -70,8 +61,5 @@ public interface BookingRepoJpa extends JpaRepository<Booking, Integer> {
     List<Booking> findAllByOwnerAndEndIsBeforeOrderByStartDesc(User owner, LocalDateTime now);
 
     List<Booking> findAllByBookerAndEndIsBeforeOrderByStartDesc(User booker, LocalDateTime now);
-
-
-    // List<Booking> findAllByBookerAndStateEqualsOrderByStartTimeDesc(User userBooker, State waiting);
 
 }

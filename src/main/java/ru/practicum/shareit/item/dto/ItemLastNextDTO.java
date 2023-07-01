@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.dto.BookingLastNextItemDto;
@@ -17,18 +16,17 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ItemLastNextDTO {
- int id;
+    int id;
     @NotBlank
-  String name;
+    String name;
     @NotBlank
     @NotNull
- String description;
+    String description;
     @NotNull
- Boolean available;
-  int ownerId;
-  int request;
-  BookingLastNextItemDto lastBooking;
-  BookingLastNextItemDto nextBooking;
- //   @JsonProperty("comments")
-  List<CommentDto> comments;
+    Boolean available;
+    int ownerId;
+    int request;
+    BookingLastNextItemDto lastBooking;
+    BookingLastNextItemDto nextBooking;
+    List<CommentDto> comments;
 }

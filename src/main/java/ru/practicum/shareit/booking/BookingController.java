@@ -41,9 +41,10 @@ public class BookingController {
                                                    @RequestHeader("X-Sharer-User-Id") int userId) {
         return bookingService.getAllForBookerService(state, userId);
     }
+
     @GetMapping("/owner")
     private List<BookingForResponse> getAllForOwner(@RequestParam(required = false, defaultValue = "ALL") String state,
-                                                          @RequestHeader("X-Sharer-User-Id") int userId) {
+                                                    @RequestHeader("X-Sharer-User-Id") int userId) {
         return bookingService.getAllForOwnerService(state, userId);
     }
 }

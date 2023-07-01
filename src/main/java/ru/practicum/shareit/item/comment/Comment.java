@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.comment;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -30,8 +29,7 @@ public class Comment {
     private Item item;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
-   // @JsonAlias({"authorName"})
-   @JsonProperty("authorName")
+    @JsonProperty("authorName")
     private User author;
     @Column
     private LocalDateTime created;

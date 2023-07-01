@@ -38,11 +38,10 @@ public class Item {
     private User owner;
     @Column
     int request;
-
     @ElementCollection
     @OneToMany(mappedBy = "item")
     private List<Booking> bookings;
-
+    @ElementCollection
     @OneToMany(mappedBy = "item")
     private List<Comment> comments;
 

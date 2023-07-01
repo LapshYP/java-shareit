@@ -25,14 +25,14 @@ public class Booking {
     @Column
     @NotNull
     LocalDateTime start;
-    @Column(name = "end_time", nullable = false)
+    @Column(name = "end_time")
     @NotNull
     LocalDateTime end;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id", nullable = false)
+    @JoinColumn(name = "item_id")
     Item item;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "booker_id", nullable = false)
+    @JoinColumn(name = "booker_id")
     User booker;
     @Column
     @Enumerated(EnumType.STRING)

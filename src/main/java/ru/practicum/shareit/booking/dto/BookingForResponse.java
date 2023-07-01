@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.booking.model.State;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.user.dto.UserDTO;
@@ -20,14 +19,11 @@ import java.time.LocalDateTime;
 public class BookingForResponse {
     int id;
     @JsonProperty("start")
-    @NotNull
-    LocalDateTime startTime;
+    @NotNull LocalDateTime startTime;
     @JsonProperty("end")
-    @NotNull
-    LocalDateTime endTime;
+    @NotNull LocalDateTime endTime;
     ItemDTO item;
     UserDTO booker;
-//    State state;
-     Status status;
+    Status status;
 
 }
