@@ -1,23 +1,26 @@
 package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.model.Status;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @RequiredArgsConstructor
 @ToString
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingLastNextItemDto {
-    private int id;
+    int id;
     @JsonProperty("start")
-    private LocalDateTime startTime;
+    @NotNull
+    LocalDateTime startTime;
     @JsonProperty("end")
-    private LocalDateTime endTime;
-    private int bookerId;
-    private Status status;
+    @NotNull
+    LocalDateTime endTime;
+    int bookerId;
+    Status status;
 }

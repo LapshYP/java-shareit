@@ -42,12 +42,19 @@ public class UserServiceImpl implements UserService {
         //  User user = userMapper.userDTOToUser(userDTO);
         User user = mapper.map(userDTO, User.class);
 
-        User savedUser = userRepoJpa.save(user);
-        log.debug("Пользователь с email = {} и именем {} добавлен", user.getEmail(), user.getName());
+        int userCount = userRepoJpa.findByEmail(user.getEmail()).size();
+        if (userCount == 0) {
+            User savedUser = userRepoJpa.save(user);
+            log.debug("Пользователь с email = {} и именем {} добавлен", user.getEmail(), user.getName());
 
-        //  UserDTO savedUserDTO = userMapper.userToUserDTO(savedUser);
-        UserDTO savedUserDTO = mapper.map(savedUser, UserDTO.class);
-        return savedUserDTO;
+            //  UserDTO savedUserDTO = userMapper.userToUserDTO(savedUser);
+            UserDTO savedUserDTO = mapper.map(savedUser, UserDTO.class);
+            return savedUserDTO;
+        } else {
+            log.error("Пользователь с email = {} уже существует", user.getEmail());
+            throw new DubleException("Пользователь с таким email уже существует");
+        }
+
     }
 
     @Override
@@ -66,19 +73,29 @@ public class UserServiceImpl implements UserService {
         //  User user = userMapper.userDTOToUser(userDTO);
         User user = mapper.map(userDTO, User.class);
 
-        User updatedUser = userRepoJpa.getReferenceById(userId);
+        User updatedUser = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
+        ;
         if (user.getName() != null) {
             updatedUser.setName(user.getName());
         }
+
         if (user.getEmail() != null) {
-            boolean hasEmail = userRepoJpa.findAll().stream()
-                    .anyMatch(user1 -> user1.getEmail().equals(user.getEmail()) && user1.getId() != userId);
-            if (hasEmail) {
+            int userCount = userRepoJpa.findByIdAndEmail(updatedUser.getId(), updatedUser.getEmail()).size();
+            if (userCount != 1) {
                 log.error("Пользователь с email = {} уже существует", user.getEmail());
                 throw new DubleException("Такой емейл уже существует");
             }
             updatedUser.setEmail(user.getEmail());
         }
+//        if (user.getEmail() != null) {
+//            boolean hasEmail = userRepoJpa.findAll().stream()
+//                    .anyMatch(user1 -> user1.getEmail().equals(user.getEmail()) && user1.getId() != userId);
+//            if (hasEmail) {
+//                log.error("Пользователь с email = {} уже существует", user.getEmail());
+//                throw new DubleException("Такой емейл уже существует");
+//            }
+//            updatedUser.setEmail(user.getEmail());
+//        }
         updatedUser.setId(userId);
         userRepoJpa.save(updatedUser);
         log.debug("Пользователь с email = {} и именем {} обновлен", user.getEmail(), user.getName());
@@ -92,9 +109,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO deleteUserService(int userId) {
+        User user = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
 
         //  UserDTO userDTO = userMapper.userToUserDTO(userRepoJpa.getById(userId));
-        UserDTO userDTO = mapper.map(userRepoJpa.getById(userId), UserDTO.class);
+        UserDTO userDTO = mapper.map(user, UserDTO.class);
         userRepoJpa.deleteById(userId);
         log.debug("Пользователь с userId = {} удален", userId);
         return userDTO;
@@ -102,14 +120,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserSerivece(int userId) {
-
-        if (userRepoJpa.findAll()
-                .stream()
-                .filter(user1 -> user1.getId() == userId).count() == 0) {
-            log.error("Пользователь с id = {} не найден", userId);
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден");
-        }
-        User user = userRepoJpa.getById(userId);
+        User user = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
+        //       log.error("Пользователь с id = {} не найден", userId);
+//        if (userRepoJpa.findAll()
+//                .stream()
+//                .filter(user1 -> user1.getId() == userId).count() == 0) {
+//            log.error("Пользователь с id = {} не найден", userId);
+//            throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден");
+//        }
+//        User user = userRepoJpa.getById(userId);
         //    UserDTO userDTO = userMapper.userToUserDTO(user);
         UserDTO userDTO = mapper.map(user, UserDTO.class);
         log.debug("Пользователь с userId = {} просмотрен", userId);

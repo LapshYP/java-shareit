@@ -2,14 +2,14 @@ package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -17,19 +17,23 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class BookingDto {
-    private int id;
+    int id;
     @NotNull
-    private int itemId;
-   @JsonAlias({"start"})
- //  @JsonProperty( "start" )
+    int itemId;
+   // @JsonAlias({"start"})
+     @JsonProperty( "start" )
+    @NotNull
     private LocalDateTime start;
-   @JsonAlias({"end"})
-  //  @JsonProperty( "end" )
-    private LocalDateTime end;
-    private Item item;
-    private User booker;
-    private Status status;
+    //   @JsonAlias({"end"})
+    @JsonProperty("end")
+    @NotNull
+    LocalDateTime end;
+    Item item;
+    User booker;
+    @Enumerated(EnumType.STRING)
+    Status status;
 
 
 }
