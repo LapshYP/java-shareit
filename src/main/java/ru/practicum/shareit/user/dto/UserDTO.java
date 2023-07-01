@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.dto;
 
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -10,11 +11,12 @@ import javax.validation.constraints.NotEmpty;
 @ToString
 @RequiredArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserDTO {
-    private int id;
+    int id;
     @NotEmpty(message = "Поле имя не может быть пустым")
-    private String name;
+    String name;
     @Email(message = "Email не прошел валидацию", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
     @NotEmpty(message = "Email не должен быть пустым")
-    private String email;
+    String email;
 }
