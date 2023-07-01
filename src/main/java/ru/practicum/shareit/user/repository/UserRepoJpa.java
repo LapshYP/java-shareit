@@ -10,8 +10,11 @@ import java.util.List;
 
 public interface UserRepoJpa extends JpaRepository<User, Integer> {
 
-    @Query(value = "SELECT * FROM USERS WHERE ID = ?1 AND EMAIL = ?2", nativeQuery = true)
+   // @Query(value = "SELECT * FROM USERS WHERE ID = ?1 AND EMAIL = ?2", nativeQuery = true)
     List<User> findByIdAndEmail(int id, String email);
-    @Query(value = "SELECT * FROM USERS WHERE EMAIL = ?1", nativeQuery = true)
-    Collection<Object> findByEmail(String email);
+//    @Query(value = "SELECT * FROM USERS WHERE EMAIL = ?1", nativeQuery = true)
+//    List<User> findByEmail(String email);
+@Query(value = "SELECT * FROM USERS WHERE EMAIL = ?1", nativeQuery = true)
+    List<User> findByEmailEquals(String email);
+
 }

@@ -42,19 +42,12 @@ public class UserServiceImpl implements UserService {
         //  User user = userMapper.userDTOToUser(userDTO);
         User user = mapper.map(userDTO, User.class);
 
-        int userCount = userRepoJpa.findByEmail(user.getEmail()).size();
-        if (userCount == 0) {
-            User savedUser = userRepoJpa.save(user);
-            log.debug("Пользователь с email = {} и именем {} добавлен", user.getEmail(), user.getName());
+        User savedUser = userRepoJpa.save(user);
+        log.debug("Пользователь с email = {} и именем {} добавлен", user.getEmail(), user.getName());
 
-            //  UserDTO savedUserDTO = userMapper.userToUserDTO(savedUser);
-            UserDTO savedUserDTO = mapper.map(savedUser, UserDTO.class);
-            return savedUserDTO;
-        } else {
-            log.error("Пользователь с email = {} уже существует", user.getEmail());
-            throw new DubleException("Пользователь с таким email уже существует");
-        }
-
+        //  UserDTO savedUserDTO = userMapper.userToUserDTO(savedUser);
+        UserDTO savedUserDTO = mapper.map(savedUser, UserDTO.class);
+        return savedUserDTO;
     }
 
     @Override
