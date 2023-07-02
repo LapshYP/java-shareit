@@ -22,7 +22,7 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     int id;
-    @Column
+    @Column(name = "start_time")
     @NotNull
     LocalDateTime start;
     @Column(name = "end_time")
