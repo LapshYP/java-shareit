@@ -1,8 +1,10 @@
 package ru.practicum.shareit.request.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -10,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "requests",schema = "public")
+@Table(name = "requests", schema = "public")
 @Getter
 @Setter
 @RequiredArgsConstructor

@@ -14,13 +14,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemRequestController {
     private final RequestItemService requestItemService;
+
     @PostMapping
-    ItemRequestDto addItemRequest (@Valid @RequestBody(required = false) ItemRequestDto itemRequestDto,
-                                   @RequestHeader("X-Sharer-User-Id") int userId){
-      return   requestItemService.addItemRequestService (itemRequestDto,userId);
+    ItemRequestDto addItemRequest(@Valid @RequestBody(required = false) ItemRequestDto itemRequestDto,
+                                  @RequestHeader("X-Sharer-User-Id") int userId) {
+        return requestItemService.addItemRequestService(itemRequestDto, userId);
     }
+
     @GetMapping
-    List<ItemRequestDto> requestsGet (@Valid @RequestHeader("X-Sharer-User-Id") int userId) {
+    List<ItemRequestDto> requestsGet(@Valid @RequestHeader("X-Sharer-User-Id") int userId) {
 
         return requestItemService.getItemRequestSerivice(userId);
     }

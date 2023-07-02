@@ -39,9 +39,11 @@ public class RequestItemServiceImpl implements RequestItemService {
         User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
 
 
-        return  requestItemRepoJpa.findAll()
+        return requestItemRepoJpa.findAll()
                 .stream()
-                .map(itemRequest -> {return mapper.map(itemRequest,ItemRequestDto.class);})
+                .map(itemRequest -> {
+                    return mapper.map(itemRequest, ItemRequestDto.class);
+                })
                 .collect(Collectors.toList());
     }
 //    @Override
