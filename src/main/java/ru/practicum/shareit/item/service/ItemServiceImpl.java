@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingLastNextItemDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
@@ -42,7 +43,7 @@ public class ItemServiceImpl implements ItemService {
 
     @SneakyThrows
     @Override
-
+    @Transactional
     public ItemDTO createService(ItemDTO itemDTO, int userId) {
         Item item = mapper.map(itemDTO, Item.class);
 
@@ -61,6 +62,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDTO updateService(ItemDTO itemDTO, int itemId, int userId) {
         //   Item item = itemMapper.itemDTOToItem(itemDTO);
         Item item = mapper.map(itemDTO, Item.class);
@@ -87,6 +89,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ItemLastNextDTO getByOwnerIdService(int itemId, int userId) {
 
         Item item = itemRepoJpa.findById(itemId)
@@ -152,6 +155,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemLastNextDTO> getByBookerIdService(int userId) {
         log.debug("Список всех вещей просмотрен");
         User booker = userRepoJpa.findById(userId).orElseThrow(() ->
@@ -215,6 +219,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ItemDTO> searchByParamService(String text) {
         if (text == null || text.isEmpty()) {
             log.debug("Запрос не задан");
@@ -237,6 +242,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto addComment(int userId, int itemId, CommentDto commentDto) {
         if (commentDto.getContent().isBlank()) {
             throw new BadRequestException(HttpStatus.BAD_REQUEST, "Комментарий не должен быть пустым");
