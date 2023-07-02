@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS bookings
     booker_id BIGINT REFERENCES users (id) ON DELETE CASCADE,
     status    VARCHAR(255),
     CONSTRAINT pk_booking PRIMARY KEY (id),
-    CONSTRAINT fk_bookings_booker FOREIGN KEY (booker_id) REFERENCES users (id) ON DELETE CASCADE,
-    CONSTRAINT UQ_BOOKING_ITEMID UNIQUE (item_id)
+    CONSTRAINT fk_bookings_booker FOREIGN KEY (booker_id) REFERENCES users (id) ON DELETE CASCADE
+
 );
 CREATE TABLE IF NOT EXISTS comments
 (

@@ -48,8 +48,7 @@ public interface BookingRepoJpa extends JpaRepository<Booking, Integer> {
     List<Booking> findAllByOwnerAndStatusEqualsOrderByStartDesc(int userOwnerId, Status status);
 
     @Query("SELECT b from Booking b " +
-            "JOIN b.item AS i " +
-            "WHERE i.owner = ?1 " +
+           "WHERE b.item.owner = ?1 " +
             "and b.start < ?2 and b.end > ?3 " +
             "order by b.start DESC")
     List<Booking> findAllBookingsForOwnerWithStartAndEnd(User owner, LocalDateTime now, LocalDateTime now1);
