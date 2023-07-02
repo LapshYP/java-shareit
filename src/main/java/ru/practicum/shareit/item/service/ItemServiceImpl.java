@@ -244,7 +244,7 @@ public class ItemServiceImpl implements ItemService {
         User user = userRepoJpa.findById(userId)
                 .orElseThrow(() ->
                         new NotFoundException(HttpStatus.NOT_FOUND, "комментарий  к вещи с id = '" + itemId
-                                + "' пользователем с id = " + userId + " ; отсутствует запись о пользователе."));
+                                + "' пользователем с id = " + userId + " ; нет информации о пользователе."));
         Item item = itemRepoJpa.findById(itemId).orElseThrow(() ->
                 new NotFoundException(HttpStatus.NOT_FOUND, "комментарий к вещи с id = '" + itemId
                         + "' пользователем с id = '" + userId + "' - отсутствует запись о вещи."));

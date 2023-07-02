@@ -34,7 +34,7 @@ public interface BookingRepoJpa extends JpaRepository<Booking, Integer> {
 
     @Query("select b from Booking b " +
             "where b.booker = ?1 and b.start < ?2 and b.end > ?3 " +
-            "order by b.start asc ")
+            "order by b.start DESC ")
     List<Booking> findAllBookingsForBookerWithStartAndEnd(User userBooker, LocalDateTime now, LocalDateTime now1);
 
     List<Booking> findAllByBookerAndStatusEqualsOrderByStartDesc(User userBooker, Status status);
