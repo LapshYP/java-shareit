@@ -13,7 +13,9 @@ import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
 
+import javax.validation.*;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,11 +28,21 @@ public class UserServiceImpl implements UserService {
 
     private final ModelMapper mapper = new ModelMapper();
 
+    private void validateUser(User user) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+    }
+
     @SneakyThrows
     @Override
     @Transactional
     public UserDTO createUserSerivce(UserDTO userDTO) {
         User user = mapper.map(userDTO, User.class);
+        validateUser(user);
         User savedUser = userRepoJpa.save(user);
         log.debug("Пользователь с email = {} и именем {} добавлен", user.getEmail(), user.getName());
         UserDTO savedUserDTO = mapper.map(savedUser, UserDTO.class);
@@ -67,6 +79,7 @@ public class UserServiceImpl implements UserService {
         }
 
         updatedUser.setId(userId);
+        validateUser(updatedUser);
         userRepoJpa.save(updatedUser);
         log.debug("Пользователь с email = {} и именем {} обновлен", user.getEmail(), user.getName());
         UserDTO updatedUserDTO = mapper.map(updatedUser, UserDTO.class);

@@ -20,10 +20,12 @@ import ru.practicum.shareit.item.repository.ItemRepoJpa;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
 
+import javax.validation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,15 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepoJpa userRepoJpa;
 
     private final ModelMapper mapper = new ModelMapper();
+
+    private void validateBooking(Booking booking) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<Booking>> violations = validator.validate(booking);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+    }
 
     @Override
     @Transactional
@@ -66,7 +77,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setBooker(booker);
         booking.setItem(item);
         booking.setStatus(Status.WAITING);
-
+        validateBooking(booking);
         Booking bookingToSave = bookingRepoJpa.save(booking);
         BookingForResponse bookingForResponse = mapper.map(bookingToSave, BookingForResponse.class);
         return bookingForResponse;
@@ -85,16 +96,17 @@ public class BookingServiceImpl implements BookingService {
 
         if (approved && !booking.getStatus().equals(Status.APPROVED)) {
             booking.setStatus(Status.APPROVED);
+            validateBooking(booking);
             bookingRepoJpa.save(booking);
         } else if (!approved && !booking.getStatus().equals(Status.REJECTED)) {
             booking.setStatus(Status.REJECTED);
+            validateBooking(booking);
             bookingRepoJpa.save(booking);
         } else {
             throw new BadRequestException(HttpStatus.BAD_REQUEST, "Status is already updated for booking with id " + bookingId);
         }
 
         return mapper.map(booking, BookingForResponse.class);
-
     }
 
     @Override

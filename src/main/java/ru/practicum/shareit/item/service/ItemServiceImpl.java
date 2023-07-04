@@ -22,10 +22,12 @@ import ru.practicum.shareit.item.repository.ItemRepoJpa;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
 
+import javax.validation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 ;
@@ -41,22 +43,30 @@ public class ItemServiceImpl implements ItemService {
 
     private final ModelMapper mapper = new ModelMapper();
 
+    private void validateItem(Item item) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<Item>> violations = validator.validate(item);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+    }
+
     @SneakyThrows
     @Override
     @Transactional
     public ItemDTO createService(ItemDTO itemDTO, int userId) {
+
         Item item = mapper.map(itemDTO, Item.class);
 
-        if (item.getAvailable() == null) {
-            log.error("Вещь с именем = {} и описанием {} не доступна", item.getName(), item.getDescription());
-            throw new BadRequestException(HttpStatus.BAD_REQUEST, item.getName() + " не доступна");
-        }
+        item.setOwner(userRepoJpa.getReferenceById(userId));
+
+        validateItem(item);
         userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
 
-
-        item.setOwner(userRepoJpa.getReferenceById(userId));
-        log.debug("Вещь с именем = {} и описанием {} создана", item.getName(), item.getDescription());
         Item createdItem = itemRepoJpa.save(item);
+        log.debug("Вещь с именем = {} и описанием {} создана", item.getName(), item.getDescription());
+
         ItemDTO createdItemDTO = mapper.map(createdItem, ItemDTO.class);
         return createdItemDTO;
     }
@@ -83,6 +93,7 @@ public class ItemServiceImpl implements ItemService {
         }
         log.debug("Вещь с именем = {} и описанием {} обновлена", item.getName(), item.getDescription());
         updateItem.setOwner(userRepoJpa.getReferenceById(userId));
+        validateItem(updateItem);
         Item updatedItem = itemRepoJpa.save(updateItem);
         ItemDTO updatedItemDTO = mapper.map(updatedItem, ItemDTO.class);
         return updatedItemDTO;
@@ -241,6 +252,15 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
+    private void validateComment(Comment comment) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<Comment>> violations = validator.validate(comment);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+    }
+
     @Override
     @Transactional
     public CommentDto addComment(int userId, int itemId, CommentDto commentDto) {
@@ -270,7 +290,7 @@ public class ItemServiceImpl implements ItemService {
         comment.setItem(item);
         comment.setAuthor(user);
         comment.setCreated(LocalDateTime.now());
-
+        validateComment(comment);
         Comment commentToDto = commentRepoJpa.save(comment);
         return mapper.map(commentToDto, CommentDto.class);
     }

@@ -7,6 +7,8 @@ import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -22,10 +24,13 @@ public class Item {
     @Column
     int id;
     @Column
+    @NotBlank
     String name;
     @Column
+    @NotBlank
     String description;
     @Column
+    @NotNull
     Boolean available;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
