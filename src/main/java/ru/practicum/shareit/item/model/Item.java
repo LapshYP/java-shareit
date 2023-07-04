@@ -7,8 +7,6 @@ import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -23,14 +21,10 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     int id;
-    @NotBlank
     @Column
     String name;
-    @NotBlank
-    @NotNull
     @Column
     String description;
-    @NotNull
     @Column
     Boolean available;
     @ManyToOne(fetch = FetchType.EAGER)

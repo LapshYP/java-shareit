@@ -22,5 +22,5 @@ public class ItemDTO {
     @NotNull
     Boolean available;
     int ownerId;
-    int request;
+    int requestId;
 }

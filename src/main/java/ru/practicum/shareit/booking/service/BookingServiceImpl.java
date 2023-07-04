@@ -113,33 +113,55 @@ public class BookingServiceImpl implements BookingService {
     @SneakyThrows
     @Override
     @Transactional(readOnly = true)
-    public List<BookingForResponse> getAllForBookerService(String state, int userId) {
+    public List<BookingForResponse> getAllForBookerService(String bookingState, int userId) {
         User booker
                 = userRepoJpa.findById(userId)
                 .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "User with id " + userId + " not exists in the DB"));
-        List<Booking> result = new ArrayList<>();
-        if (state.equals(State.ALL.toString())) {
-            result = bookingRepoJpa.findAllByBookerOrderByStartDesc(booker);
-        } else if (state.equals(State.FUTURE.toString())) {
-            result = bookingRepoJpa.findAllByBookerAndStartIsAfterOrderByStartDesc(
-                    booker, LocalDateTime.now());
-        } else if (state.equals(State.WAITING.toString())) {
-            result = bookingRepoJpa.findAllByBookerAndStatusEqualsOrderByStartDesc(
-                    booker, Status.WAITING);
-        } else if (state.equals(State.REJECTED.toString())) {
-            result = bookingRepoJpa.findAllByBookerAndStatusEqualsOrderByStartDesc(
-                    booker, Status.REJECTED);
-        } else if (state.equals(State.CURRENT.toString())) {
-            result = bookingRepoJpa.findAllBookingsForBookerWithStartAndEnd(
-                    booker, LocalDateTime.now(), LocalDateTime.now());
 
-        } else if (state.equals(State.PAST.toString())) {
-            result = bookingRepoJpa.findAllByBookerAndEndIsBeforeOrderByStartDesc(
-                    booker, LocalDateTime.now());
-        } else throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");
+        State state;
+        if (bookingState == null) {
+            state = State.ALL;
+        } else {
+            try {
+                state = State.valueOf(bookingState);
+            } catch (IllegalArgumentException e) {
+                state = State.UNKNOWN;
+            }
+
+        }
+
+        List<Booking> bookingList = new ArrayList<>();
+        switch (state) {
+            case ALL:
+                bookingList = bookingRepoJpa.findAllByBookerOrderByStartDesc(booker);
+                break;
+            case FUTURE:
+                bookingList = bookingRepoJpa.findAllByBookerAndStartIsAfterOrderByStartDesc(
+                        booker, LocalDateTime.now());
+                break;
+            case WAITING:
+                bookingList = bookingRepoJpa.findAllByBookerAndStatusEqualsOrderByStartDesc(
+                        booker, Status.WAITING);
+                break;
+            case REJECTED:
+                bookingList = bookingRepoJpa.findAllByBookerAndStatusEqualsOrderByStartDesc(
+                        booker, Status.REJECTED);
+                break;
+            case CURRENT:
+                bookingList = bookingRepoJpa.findAllBookingsForBookerWithStartAndEnd(
+                        booker, LocalDateTime.now(), LocalDateTime.now());
+                break;
+            case PAST:
+                bookingList = bookingRepoJpa.findAllByBookerAndEndIsBeforeOrderByStartDesc(
+                        booker, LocalDateTime.now());
+                break;
+            case UNKNOWN:
+                throw new UnsupportedStatusException("Unknown bookingState: UNSUPPORTED_STATUS");
+        }
+
         List<BookingForResponse> bookingsListForResponse = new ArrayList<>();
 
-        for (Booking booking : result) {
+        for (Booking booking : bookingList) {
             BookingForResponse bookingForResponse = mapper.map(booking, BookingForResponse.class);
             bookingsListForResponse.add(bookingForResponse);
         }
@@ -149,37 +171,56 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingForResponse> getAllForOwnerService(String state, int userId) {
+    public List<BookingForResponse> getAllForOwnerService(String bookingState, int userId) {
         User owner
                 = userRepoJpa.findById(userId)
                 .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "User with id " + userId + " not exists in the DB"));
-        List<Booking> result = new ArrayList<>();
-        if (state.equals(State.ALL.toString())) {
-            result = bookingRepoJpa.getAllForOwner(owner.getId());
-        } else if (state.equals(State.FUTURE.toString())) {
-            result = bookingRepoJpa.findAllByOwnerAndStartIsAfterOrderByStartDesc(
-                    owner.getId(), LocalDateTime.now());
-        } else if (state.equals(State.WAITING.toString())) {
-            result = bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(
-                    owner.getId(), Status.WAITING);
-        } else if (state.equals(State.REJECTED.toString())) {
-            result = bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(
-                    owner.getId(), Status.REJECTED);
-        } else if (state.equals(State.CURRENT.toString())) {
-            result = bookingRepoJpa.findAllBookingsForOwnerWithStartAndEnd(
-                    owner, LocalDateTime.now(), LocalDateTime.now());
-        } else if (state.equals(State.PAST.toString())) {
-            result = bookingRepoJpa.findAllByOwnerAndEndIsBeforeOrderByStartDesc(
-                    owner, LocalDateTime.now());
-        } else throw new UnsupportedStatusException("Unknown state: UNSUPPORTED_STATUS");
+        List<Booking> bookingListResult = new ArrayList<>();
+        State state;
+        if (bookingState == null) {
+            state = State.ALL;
+        } else {
+            try {
+                state = State.valueOf(bookingState);
+            } catch (IllegalArgumentException e) {
+                state = State.UNKNOWN;
+            }
+        }
+        List<Booking> bookingList = new ArrayList<>();
+        switch (state) {
+            case ALL:
+                bookingListResult = bookingRepoJpa.getAllForOwner(owner.getId());
+                break;
+            case FUTURE:
+                bookingListResult = bookingRepoJpa.findAllByOwnerAndStartIsAfterOrderByStartDesc(
+                        owner.getId(), LocalDateTime.now());
+                break;
+            case WAITING:
+                bookingListResult = bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(
+                        owner.getId(), Status.WAITING);
+                break;
+            case REJECTED:
+                bookingListResult = bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(
+                        owner.getId(), Status.REJECTED);
+                break;
+            case CURRENT:
+                bookingListResult = bookingRepoJpa.findAllBookingsForOwnerWithStartAndEnd(
+                        owner, LocalDateTime.now(), LocalDateTime.now());
+                break;
+            case PAST:
+                bookingListResult = bookingRepoJpa.findAllByOwnerAndEndIsBeforeOrderByStartDesc(
+                        owner, LocalDateTime.now());
+                break;
+            case UNKNOWN:
+                throw new UnsupportedStatusException("Unknown bookingState: UNSUPPORTED_STATUS");
+        }
         List<BookingForResponse> bookingsForResponse = new ArrayList<>();
 
-        for (Booking booking : result) {
+        for (Booking booking : bookingListResult) {
             BookingForResponse bookingForResponse = mapper.map(booking, BookingForResponse.class);
             bookingsForResponse.add(bookingForResponse);
         }
         return bookingsForResponse;
     }
-
-
 }
+

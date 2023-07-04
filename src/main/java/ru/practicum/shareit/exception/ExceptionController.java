@@ -62,7 +62,7 @@ public class ExceptionController {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<String> handleConstraintViolationException(JdbcSQLIntegrityConstraintViolationException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body("Constraint violation occurred: " + ex.getMessage());
+                .body("JdbcSQLIntegrityConstraintViolationException: " + ex.getMessage());
     }
 
     //500

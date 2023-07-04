@@ -23,10 +23,8 @@ public class Booking {
     @Column
     int id;
     @Column(name = "start_time")
-    @NotNull
     LocalDateTime start;
     @Column(name = "end_time")
-    @NotNull
     LocalDateTime end;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
