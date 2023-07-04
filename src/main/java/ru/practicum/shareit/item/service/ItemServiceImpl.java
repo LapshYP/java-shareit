@@ -71,7 +71,7 @@ public class ItemServiceImpl implements ItemService {
 
         userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не может быть обновлена этим пользователем id = '" + userId + "' "));
 
-        Item updateItem = itemRepoJpa.getById(itemId);
+        Item updateItem = itemRepoJpa.getReferenceById(itemId);
         if (item.getName() != null) {
             updateItem.setName(item.getName());
         }

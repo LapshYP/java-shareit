@@ -21,8 +21,11 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotEmpty(message = "Поле имя не должно быть пустым")
     @Column
     private String name;
+    @Email(message = "Email is not valid", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
+    @NotEmpty(message = "Emailне должно быть пустым")
     @Column
     private String email;
 

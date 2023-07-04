@@ -1,6 +1,6 @@
 package ru.practicum.shareit.exception;
 
-import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
+ import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
