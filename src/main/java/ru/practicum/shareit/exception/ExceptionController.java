@@ -64,7 +64,6 @@ public class ExceptionController {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body("JdbcSQLIntegrityConstraintViolationException: " + ex.getMessage());
     }
-
     //500
     @ExceptionHandler({MissingRequestHeaderException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
