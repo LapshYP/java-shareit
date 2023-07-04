@@ -1,6 +1,6 @@
 package ru.practicum.shareit.exception;
 
- import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
+import org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -64,6 +64,7 @@ public class ExceptionController {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body("JdbcSQLIntegrityConstraintViolationException: " + ex.getMessage());
     }
+
     //500
     @ExceptionHandler({MissingRequestHeaderException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
