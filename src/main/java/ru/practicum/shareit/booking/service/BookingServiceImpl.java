@@ -186,7 +186,7 @@ public class BookingServiceImpl implements BookingService {
                 state = State.UNKNOWN;
             }
         }
-        List<Booking> bookingList = new ArrayList<>();
+
         switch (state) {
             case ALL:
                 bookingListResult = bookingRepoJpa.getAllForOwner(owner.getId());
