@@ -2,6 +2,10 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.booking.dto.BookingLastNextItemDto;
+import ru.practicum.shareit.item.comment.CommentDto;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -9,11 +13,14 @@ import lombok.experimental.FieldDefaults;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ItemDTO {
+public class ItemLastNextDTO {
     int id;
     String name;
     String description;
     Boolean available;
     int ownerId;
-    int requestId;
+    int request;
+    BookingLastNextItemDto lastBooking;
+    BookingLastNextItemDto nextBooking;
+    List<CommentDto> comments;
 }

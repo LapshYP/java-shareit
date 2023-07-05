@@ -1,33 +1,26 @@
 package ru.practicum.shareit.booking.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.model.Status;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.user.model.User;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@RequiredArgsConstructor
 @ToString
-@AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class BookingDto {
+public class BookingLastNextItemDto {
     int id;
+    @JsonProperty("start")
     @NotNull
-    int itemId;
+    LocalDateTime startTime;
+    @JsonProperty("end")
     @NotNull
-    private LocalDateTime start;
-    @NotNull
-    LocalDateTime end;
-    Item item;
-    User booker;
-    @Enumerated(EnumType.STRING)
+    LocalDateTime endTime;
+    int bookerId;
     Status status;
-
-
 }

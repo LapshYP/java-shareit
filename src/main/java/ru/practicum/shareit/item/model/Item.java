@@ -1,24 +1,45 @@
 package ru.practicum.shareit.item.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.user.model.User;
 
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
-@Data
+@Entity
+@Getter
+@Setter
+@RequiredArgsConstructor
 @AllArgsConstructor
-@NoArgsConstructor
+@Table(name = "items", schema = "public")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Item {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
     int id;
+    @Column
     @NotBlank
     String name;
+    @Column
     @NotBlank
-    @NotNull
     String description;
+    @Column
     @NotNull
     Boolean available;
-    int ownerId;
-    ItemRequest request;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "owner_id")
+    private User owner;
+    @Column
+    int request;
+    @OneToMany(mappedBy = "item")
+    private List<Booking> bookings;
+    @OneToMany(mappedBy = "item")
+    private List<Comment> comments;
+
 }

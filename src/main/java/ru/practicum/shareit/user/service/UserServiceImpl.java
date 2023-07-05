@@ -3,103 +3,104 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.mapstruct.factory.Mappers;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.DubleException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDTO;
-import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
+import ru.practicum.shareit.user.repository.UserRepoJpa;
 
+import javax.validation.*;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-    private final UserMapper userMapper
-            = Mappers.getMapper(UserMapper.class);
-    private int id = 1;
+    private final UserRepoJpa userRepoJpa;
+
+    private final ModelMapper mapper = new ModelMapper();
+
+    private void validateUser(User user) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        Set<ConstraintViolation<User>> violations = validator.validate(user);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+    }
 
     @SneakyThrows
     @Override
+    @Transactional
     public UserDTO createUserSerivce(UserDTO userDTO) {
-        User user = userMapper.userDTOToUser(userDTO);
-
-        if (userRepository.getUserStorage().values()
-                .stream()
-                .filter(user1 -> user1.getEmail().equals(user.getEmail())).count() > 0) {
-            log.error("Пользователь с email = {} и именем {} уже существует", user.getEmail(), user.getName());
-            throw new DubleException("Уже существует");
-        }
-
-        user.setId(id++);
-        userRepository.createUserRepo(user);
+        User user = mapper.map(userDTO, User.class);
+        validateUser(user);
+        User savedUser = userRepoJpa.save(user);
         log.debug("Пользователь с email = {} и именем {} добавлен", user.getEmail(), user.getName());
-
-        UserDTO savedUserDTO = userMapper.userToUserDTO(user);
+        UserDTO savedUserDTO = mapper.map(savedUser, UserDTO.class);
         return savedUserDTO;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDTO> getAll() {
-
-        return userRepository.getAllUsers().stream()
-                .map(userMapper::userToUserDTO)
+        return userRepoJpa.findAll().stream()
+                .map(user -> {
+                    return mapper.map(user, UserDTO.class);
+                })
                 .collect(Collectors.toList());
     }
 
     @SneakyThrows
     @Override
+    @Transactional
     public UserDTO updateUserService(UserDTO userDTO, int userId) {
-        User user = userMapper.userDTOToUser(userDTO);
-
-
-        User updatedUser = userRepository.getUserById(userId);
+        User user = mapper.map(userDTO, User.class);
+        User updatedUser = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
         if (user.getName() != null) {
             updatedUser.setName(user.getName());
         }
+
         if (user.getEmail() != null) {
-            boolean hasEmail = userRepository.getUserStorage().values().stream()
-                    .anyMatch(user1 -> user1.getEmail().equals(user.getEmail()) && user1.getId() != userId);
-            if (hasEmail) {
+            int userCount = userRepoJpa.findByIdAndEmail(updatedUser.getId(), updatedUser.getEmail()).size();
+            if (userCount != 1) {
                 log.error("Пользователь с email = {} уже существует", user.getEmail());
                 throw new DubleException("Такой емейл уже существует");
             }
             updatedUser.setEmail(user.getEmail());
         }
-        updatedUser.setId(userId);
-        userRepository.updateUserRepo(updatedUser, userId);
-        log.debug("Пользователь с email = {} и именем {} обновлен", user.getEmail(), user.getName());
 
-        UserDTO updatedUserDTO = userMapper.userToUserDTO(updatedUser);
+        updatedUser.setId(userId);
+        validateUser(updatedUser);
+        userRepoJpa.save(updatedUser);
+        log.debug("Пользователь с email = {} и именем {} обновлен", user.getEmail(), user.getName());
+        UserDTO updatedUserDTO = mapper.map(updatedUser, UserDTO.class);
         return updatedUserDTO;
     }
 
     @Override
+    @Transactional
     public UserDTO deleteUserService(int userId) {
-        User user = userRepository.deleteUserRepo(userId);
+        User user = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
+        UserDTO userDTO = mapper.map(user, UserDTO.class);
+        userRepoJpa.deleteById(userId);
         log.debug("Пользователь с userId = {} удален", userId);
-        UserDTO userDTO = userMapper.userToUserDTO(user);
         return userDTO;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserDTO getUserSerivece(int userId) {
-
-        if (userRepository.getUserStorage().values()
-                .stream()
-                .filter(user1 -> user1.getId() == userId).count() == 0) {
-            log.error("Пользователь с id = {} не найден", userId);
-            throw new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден");
-        }
-        User user = userRepository.getUserById(userId);
-        UserDTO userDTO = userMapper.userToUserDTO(user);
+        User user = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
+        UserDTO userDTO = mapper.map(user, UserDTO.class);
         log.debug("Пользователь с userId = {} просмотрен", userId);
         return userDTO;
     }
