@@ -2,11 +2,17 @@ package ru.practicum.shareit.request.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.request.model.ItemRequestDto;
+import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.repository.ItemRepoJpa;
+import ru.practicum.shareit.request.dto.RequestDtoWithRequest;
+import ru.practicum.shareit.request.model.Request;
+import ru.practicum.shareit.request.model.RequestDto;
 import ru.practicum.shareit.request.repossitory.RequestItemRepoJpa;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
@@ -22,30 +28,91 @@ public class RequestItemServiceImpl implements RequestItemService {
     private final RequestItemRepoJpa requestItemRepoJpa;
     private final UserRepoJpa userRepoJpa;
     private final ModelMapper mapper = new ModelMapper();
+    private final ItemRepoJpa itemRepoJpa;
 
     @Override
-    public ItemRequestDto addItemRequestService(ItemRequestDto itemRequestDto, int userId) {
+    public RequestDto addItemRequestService(RequestDto itemRequestDto, int userId) {
+//        ModelMapper mapper2 = new ModelMapper();
+//        mapper2.getConfiguration()
+//                .setMatchingStrategy(MatchingStrategies.LOOSE)
+//                .setFieldMatchingEnabled(true)
+//                .setSkipNullEnabled(true)
+//                .setFieldAccessLevel(PRIVATE);
+//
+//        mapper2.getConfiguration().setPreferNestedProperties(false);
+
         User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
-        ItemRequest itemRequest = mapper.map(itemRequestDto, ItemRequest.class);
-        itemRequest.setCreatedtime(LocalDateTime.now());
-        itemRequest.setRequestor(requestor);
-        requestItemRepoJpa.save(itemRequest);
-        ItemRequestDto requestDto = mapper.map(itemRequest, ItemRequestDto.class);
+        Request request = mapper.map(itemRequestDto, Request.class);
+        request.setCreatedtime(LocalDateTime.now());
+        request.setRequestor(requestor);
+//        if (request.getItems() == null) {
+//            request.setItems(new ArrayList<>());
+//        }
+        Request saved = requestItemRepoJpa.save(request);
+        RequestDto requestDto = mapper.map(saved, RequestDto.class);
         return requestDto;
     }
 
     @Override
-    public List<ItemRequestDto> getItemRequestSerivice(int userId) {
-        User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
-
-
-        return requestItemRepoJpa.findAll()
-                .stream()
-                .map(itemRequest -> {
-                    return mapper.map(itemRequest, ItemRequestDto.class);
+    public List<RequestDtoWithRequest> getItemRequestSerivice(int userId) {
+        User requestor = userRepoJpa.findById(userId).orElseThrow(() ->
+                new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
+      List <RequestDtoWithRequest> requestDtoWithRequests =
+              requestItemRepoJpa.findAllByRequestor_Id(userId)   .stream()
+                .map(request -> {
+                    return mapper.map(request, RequestDtoWithRequest.class);
                 })
                 .collect(Collectors.toList());
+        for (RequestDtoWithRequest withRequest : requestDtoWithRequests) {
+            for (ItemDTO item : withRequest.getItems()) {
+                item.setRequestId(withRequest.getId());
+            }
+        }
+         return requestDtoWithRequests;
+
     }
+
+    @Override
+    public List<RequestDtoWithRequest> getItemRequestAllSerivice(int userId, int from, int size) {
+        if (from < 0) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "параметр from не может быть отрицательным");
+        }
+//        if (size < 1) {
+//            throw new BadRequestException(HttpStatus.BAD_REQUEST,"параметр from не может быть отрицательным");
+//        }
+        User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Request> byOwnerId = requestItemRepoJpa.findByOwnerId(userId, pageable);
+if (byOwnerId.size() == 0) {throw new BadRequestException(HttpStatus.BAD_REQUEST,"Юзер является собственником запроса");}
+
+        List <RequestDtoWithRequest> requestDtoWithRequests =
+                byOwnerId .stream()
+                        .map(request -> {
+                            return mapper.map(request, RequestDtoWithRequest.class);
+                        })
+                        .collect(Collectors.toList());
+        for (RequestDtoWithRequest withRequest : requestDtoWithRequests) {
+            for (ItemDTO item : withRequest.getItems()) {
+                item.setRequestId(withRequest.getId());
+            }
+        }
+        return requestDtoWithRequests;
+
+    }
+
+    @Override
+    public RequestDtoWithRequest getRequestById(int userId, int requestId) {
+        User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
+        Request request = requestItemRepoJpa.findById(requestId).orElseThrow(
+                () -> new NotFoundException(HttpStatus.NOT_FOUND, "Запрос вещи по id не найден"));
+        RequestDtoWithRequest requestDtoWithRequest = mapper.map(request, RequestDtoWithRequest.class);
+        for (ItemDTO item : requestDtoWithRequest.getItems()) {
+            item.setRequestId(requestId);
+        }
+
+        return requestDtoWithRequest;
+    }
+
 //    @Override
 //    public List<ItemRequestDto> getItemRequestSerivice(int from, int size, int userId) {
 //        User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
@@ -54,3 +121,4 @@ public class RequestItemServiceImpl implements RequestItemService {
 //        return  requestItemRepoJpa.findAll();
 //    }
 }
+

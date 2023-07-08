@@ -1,15 +1,19 @@
 package ru.practicum.shareit.request.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "requests", schema = "public")
@@ -17,7 +21,7 @@ import java.time.LocalDateTime;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class ItemRequest {
+public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
@@ -33,4 +37,12 @@ public class ItemRequest {
     @JsonProperty("created_time")
     LocalDateTime createdtime;
 
+    @OneToMany
+            (mappedBy = "request", orphanRemoval = true,
+            cascade = CascadeType.ALL)
+    @Column(nullable = true)
+    //@JoinColumn(name = "request_id")
+    @JsonIgnore
+   // @JsonManagedReference
+     List<Item> items;
 }

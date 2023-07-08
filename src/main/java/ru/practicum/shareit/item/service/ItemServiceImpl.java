@@ -60,6 +60,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = mapper.map(itemDTO, Item.class);
 
         item.setOwner(userRepoJpa.getReferenceById(userId));
+        item.setRequest(itemDTO.getRequestId());
 
         validateItem(item);
         userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
@@ -68,6 +69,7 @@ public class ItemServiceImpl implements ItemService {
         log.debug("Вещь с именем = {} и описанием {} создана", item.getName(), item.getDescription());
 
         ItemDTO createdItemDTO = mapper.map(createdItem, ItemDTO.class);
+        createdItemDTO.setRequestId(itemDTO.getRequestId());
         return createdItemDTO;
     }
 

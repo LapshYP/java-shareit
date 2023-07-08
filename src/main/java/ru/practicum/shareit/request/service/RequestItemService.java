@@ -1,15 +1,21 @@
 package ru.practicum.shareit.request.service;
 
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.request.model.ItemRequestDto;
+import ru.practicum.shareit.request.dto.RequestDtoWithRequest;
+import ru.practicum.shareit.request.model.RequestDto;
 
 import java.util.List;
 
 @Service
 public interface RequestItemService {
 
-    ItemRequestDto addItemRequestService(ItemRequestDto itemRequestDto, int userId);
+    RequestDto addItemRequestService(RequestDto requestDto, int userId);
 
-    List<ItemRequestDto> getItemRequestSerivice(int userId);
+    List<RequestDtoWithRequest> getItemRequestSerivice(int userId);
+
+     List<RequestDtoWithRequest> getItemRequestAllSerivice(int userId, int from, int size);
+
+
+    RequestDtoWithRequest getRequestById(int userId, int requestId);
 
 }

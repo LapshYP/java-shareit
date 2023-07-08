@@ -1,4 +1,4 @@
-package ru.practicum.shareit.request.model;
+package ru.practicum.shareit.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -6,23 +6,27 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.dto.ItemLastNextDTO;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.List;
 
-
-@Table(name = "requests", schema = "public")
 @Getter
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class ItemRequestDto {
+public class RequestForResponseDto {
 
     int id;
+
     String description;
-    //  @JsonProperty("requestorName")
-//    int requestor_id;
-    @JsonProperty("created")
+
+    User requestor;
+
     LocalDateTime createdtime;
-    ItemDTO itemDTO;
+
+    List<ItemLastNextDTO> items;
 }
