@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request.service;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.request.dto.RequestDtoWithRequest;
 import ru.practicum.shareit.request.model.RequestDto;
@@ -13,7 +14,7 @@ public interface RequestItemService {
 
     List<RequestDtoWithRequest> getItemRequestSerivice(int userId);
 
-     List<RequestDtoWithRequest> getItemRequestAllSerivice(int userId, int from, int size);
+    List<RequestDtoWithRequest> getItemRequestAllSerivice(int userId, int from, int size);
 
 
     RequestDtoWithRequest getRequestById(int userId, int requestId);

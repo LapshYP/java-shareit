@@ -3,6 +3,9 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -125,10 +128,15 @@ public class BookingServiceImpl implements BookingService {
     @SneakyThrows
     @Override
     @Transactional(readOnly = true)
-    public List<BookingForResponse> getAllForBookerService(String bookingState, int userId) {
+    public List<BookingForResponse> getAllForBookerService(String bookingState, int userId, int from, int size) {
         User booker
                 = userRepoJpa.findById(userId)
                 .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "User with id " + userId + " not exists in the DB"));
+
+        if (from < 0 || size < 0 || (from == 0 && size == 0)) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Ошибка в параметрах Pagination");
+        }
+        Pageable paging = PageRequest.of(from / size, size, Sort.by("start"));
 
         State state;
         if (bookingState == null) {
@@ -145,7 +153,7 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookingList = new ArrayList<>();
         switch (state) {
             case ALL:
-                bookingList = bookingRepoJpa.findAllByBookerOrderByStartDesc(booker);
+                bookingList = bookingRepoJpa.findAllByBookerOrderByStartDesc(booker, paging);
                 break;
             case FUTURE:
                 bookingList = bookingRepoJpa.findAllByBookerAndStartIsAfterOrderByStartDesc(
@@ -181,12 +189,19 @@ public class BookingServiceImpl implements BookingService {
         return bookingsListForResponse;
     }
 
+
     @Override
     @Transactional(readOnly = true)
-    public List<BookingForResponse> getAllForOwnerService(String bookingState, int userId) {
+    public List<BookingForResponse> getAllForOwnerService(String bookingState, int userId, int from, int size) {
         User owner
                 = userRepoJpa.findById(userId)
                 .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "User with id " + userId + " not exists in the DB"));
+
+        if (from < 0 || size < 0 || (from == 0 && size == 0)) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Ошибка в параметрах Pagination");
+        }
+        Pageable paging = PageRequest.of(from / size, size, Sort.by("start"));
+
         List<Booking> bookingListResult = new ArrayList<>();
         State state;
         if (bookingState == null) {
@@ -201,7 +216,7 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case ALL:
-                bookingListResult = bookingRepoJpa.getAllForOwner(owner.getId());
+                bookingListResult = bookingRepoJpa.getAllForOwner(owner.getId(), paging);
                 break;
             case FUTURE:
                 bookingListResult = bookingRepoJpa.findAllByOwnerAndStartIsAfterOrderByStartDesc(

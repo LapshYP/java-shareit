@@ -2,9 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.shareit.request.model.Request;
-
-import java.util.List;
 
 @Getter
 @Setter
@@ -19,6 +16,6 @@ public class ItemDTO {
     Boolean available;
     int ownerId;
     int requestId;
-   // List<Request> requests;
+    // List<Request> requests;
 
 }

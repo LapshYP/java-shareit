@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -39,10 +38,10 @@ public class Request {
 
     @OneToMany
             (mappedBy = "request", orphanRemoval = true,
-            cascade = CascadeType.ALL)
+                    cascade = CascadeType.ALL)
     @Column(nullable = true)
     //@JoinColumn(name = "request_id")
     @JsonIgnore
-   // @JsonManagedReference
-     List<Item> items;
+    // @JsonManagedReference
+    List<Item> items;
 }

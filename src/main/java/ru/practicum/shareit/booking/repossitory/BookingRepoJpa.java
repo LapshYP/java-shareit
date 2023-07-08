@@ -1,7 +1,8 @@
 package ru.practicum.shareit.booking.repossitory;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
@@ -11,18 +12,18 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface BookingRepoJpa extends JpaRepository<Booking, Integer> {
+public interface BookingRepoJpa extends PagingAndSortingRepository<Booking, Integer> {
 
     @Query("SELECT b " +
             "FROM Booking AS b " +
             "JOIN b.item AS i " +
             "WHERE i.owner.id = ?1 " +
             "ORDER BY b.start DESC ")
-    List<Booking> getAllForOwner(int userOwner);
+    List<Booking> getAllForOwner(int userOwner,Pageable paging);
 
     List<Booking> findAllByBookerAndStartIsAfterOrderByStartDesc(User userBooker, LocalDateTime now);
 
-    List<Booking> findAllByBookerOrderByStartDesc(User userBooker);
+    List<Booking> findAllByBookerOrderByStartDesc(User userBooker, Pageable paging);
 
     @Query("SELECT b " +
             "FROM Booking AS b " +
@@ -48,7 +49,7 @@ public interface BookingRepoJpa extends JpaRepository<Booking, Integer> {
     List<Booking> findAllByOwnerAndStatusEqualsOrderByStartDesc(int userOwnerId, Status status);
 
     @Query("SELECT b from Booking b " +
-           "WHERE b.item.owner = ?1 " +
+            "WHERE b.item.owner = ?1 " +
             "and b.start < ?2 and b.end > ?3 " +
             "order by b.start DESC")
     List<Booking> findAllBookingsForOwnerWithStartAndEnd(User owner, LocalDateTime now, LocalDateTime now1);

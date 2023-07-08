@@ -57,36 +57,35 @@ public class RequestItemServiceImpl implements RequestItemService {
     public List<RequestDtoWithRequest> getItemRequestSerivice(int userId) {
         User requestor = userRepoJpa.findById(userId).orElseThrow(() ->
                 new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
-      List <RequestDtoWithRequest> requestDtoWithRequests =
-              requestItemRepoJpa.findAllByRequestor_Id(userId)   .stream()
-                .map(request -> {
-                    return mapper.map(request, RequestDtoWithRequest.class);
-                })
-                .collect(Collectors.toList());
+        List<RequestDtoWithRequest> requestDtoWithRequests =
+                requestItemRepoJpa.findAllByRequestor_Id(userId).stream()
+                        .map(request -> {
+                            return mapper.map(request, RequestDtoWithRequest.class);
+                        })
+                        .collect(Collectors.toList());
         for (RequestDtoWithRequest withRequest : requestDtoWithRequests) {
             for (ItemDTO item : withRequest.getItems()) {
                 item.setRequestId(withRequest.getId());
             }
         }
-         return requestDtoWithRequests;
-
+        return requestDtoWithRequests;
     }
 
     @Override
     public List<RequestDtoWithRequest> getItemRequestAllSerivice(int userId, int from, int size) {
-        if (from < 0) {
-            throw new BadRequestException(HttpStatus.BAD_REQUEST, "параметр from не может быть отрицательным");
+        if ((from < 0 || size < 0 || (from == 0 && size == 0))) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "не правильный параметр пагинации");
         }
-//        if (size < 1) {
-//            throw new BadRequestException(HttpStatus.BAD_REQUEST,"параметр from не может быть отрицательным");
-//        }
+
         User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
         Pageable pageable = PageRequest.of(from / size, size);
         List<Request> byOwnerId = requestItemRepoJpa.findByOwnerId(userId, pageable);
-if (byOwnerId.size() == 0) {throw new BadRequestException(HttpStatus.BAD_REQUEST,"Юзер является собственником запроса");}
+//        if (byOwnerId.size() == 0) {
+//            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Юзер является собственником запроса");
+//        }
 
-        List <RequestDtoWithRequest> requestDtoWithRequests =
-                byOwnerId .stream()
+        List<RequestDtoWithRequest> requestDtoWithRequests =
+                byOwnerId.stream()
                         .map(request -> {
                             return mapper.map(request, RequestDtoWithRequest.class);
                         })
