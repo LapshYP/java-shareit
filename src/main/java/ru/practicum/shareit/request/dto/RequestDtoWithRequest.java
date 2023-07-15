@@ -1,10 +1,7 @@
 package ru.practicum.shareit.request.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.dto.UserDTO;
@@ -18,6 +15,7 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 @AllArgsConstructor
+@Builder
 public class RequestDtoWithRequest {
 
 //    int id;

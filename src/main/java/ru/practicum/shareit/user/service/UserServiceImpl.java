@@ -70,11 +70,11 @@ public class UserServiceImpl implements UserService {
         }
 
         if (user.getEmail() != null) {
-            int userCount = userRepoJpa.findByIdAndEmail(updatedUser.getId(), updatedUser.getEmail()).size();
-            if (userCount != 1) {
-                log.error("Пользователь с email = {} уже существует", user.getEmail());
-                throw new DubleException("Такой емейл уже существует");
-            }
+//            int userCount = userRepoJpa.findByIdAndEmail(updatedUser.getId(), updatedUser.getEmail()).size();
+//            if (userCount != 1) {
+//                log.error("Пользователь с email = {} уже существует", user.getEmail());
+//                throw new DubleException("Такой емейл уже существует");
+//            }
             updatedUser.setEmail(user.getEmail());
         }
 

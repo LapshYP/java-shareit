@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingLastNextItemDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
+import ru.practicum.shareit.booking.repossitory.BookingRepoJpa;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.comment.Comment;
@@ -40,6 +41,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepoJpa itemRepoJpa;
     private final UserRepoJpa userRepoJpa;
     private final CommentRepoJpa commentRepoJpa;
+    private final BookingRepoJpa bookingRepoJpa;
 
     private final ModelMapper mapper = new ModelMapper();
 
@@ -83,7 +85,7 @@ public class ItemServiceImpl implements ItemService {
 
         userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не может быть обновлена этим пользователем id = '" + userId + "' "));
 
-        Item updateItem = itemRepoJpa.getReferenceById(itemId);
+        Item updateItem = itemRepoJpa.findById(itemId).get();
         if (item.getName() != null) {
             updateItem.setName(item.getName());
         }

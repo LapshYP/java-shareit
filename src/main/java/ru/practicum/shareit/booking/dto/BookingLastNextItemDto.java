@@ -11,8 +11,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@AllArgsConstructor
 @ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class BookingLastNextItemDto {
     int id;
     @JsonProperty("start")

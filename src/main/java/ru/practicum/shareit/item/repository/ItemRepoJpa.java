@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
@@ -11,10 +10,8 @@ import java.util.List;
 
 @Repository
 public interface ItemRepoJpa extends JpaRepository<Item, Integer> {
-    @Query("select it " +
-            "from Item as it " +
-            "where it.request = ?1")
-    List<Item> findItemsByRequest(int request_id);
+
+
     List<Item> findAllByOwnerOrderById(User owner);
 
     @Query("select it " +
