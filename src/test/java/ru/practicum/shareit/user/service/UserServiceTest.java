@@ -84,7 +84,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUserSerivce() {
+    void createUserSerivceTest() {
         when(userRepoJpa.save(any()))
                 .thenReturn(user);
         UserDTO userDTO = mapper.map(user, UserDTO.class);
@@ -92,7 +92,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUserSerivceWithBadName() {
+    void createUserSerivceWithBadNameTest() {
         UserDTO userDTO = mapper.map(user, UserDTO.class);
         userDTO.setName("");
         assertThrows(
@@ -101,7 +101,16 @@ class UserServiceTest {
     }
 
     @Test
-    void getAll() {
+    void createUserSerivceWithBadEmailTest() {
+        UserDTO userDTO = mapper.map(user, UserDTO.class);
+        userDTO.setEmail("@");
+        assertThrows(
+                ConstraintViolationException.class,
+                () -> userService.createUserSerivce(userDTO));
+    }
+
+    @Test
+    void getAllTest() {
 
         when(userRepoJpa.findAll())
                 .thenReturn(List.of(user));
@@ -111,7 +120,7 @@ class UserServiceTest {
     }
 
     @Test
-    void updateUserNameAndEmail() {
+    void updateUserNameAndEmailTest() {
 
         user.setEmail("ivan@mailupdated.ru");
         user.setName("ivanupdated");
@@ -129,7 +138,37 @@ class UserServiceTest {
     }
 
     @Test
-    void deleteUserServiceWtihBadId() {
+    void updateUserWithBadNameTest() {
+
+        // user.setEmail("ivan@mailupdated.ru");
+        user.setName("");
+        Mockito.when(userRepoJpa.findById(Mockito.any()))
+                .thenReturn(Optional.ofNullable(user));
+
+        UserDTO userDto = mapper.map(user, UserDTO.class);
+
+        assertThrows(
+                ConstraintViolationException.class,
+                () -> userService.updateUserService(userDto, userDto.getId()));
+    }
+
+    @Test
+    void updateUserWithBadEmailTest() {
+
+        user.setEmail("ivan@");
+
+        Mockito.when(userRepoJpa.findById(Mockito.any()))
+                .thenReturn(Optional.ofNullable(user));
+
+        UserDTO userDto = mapper.map(user, UserDTO.class);
+
+        assertThrows(
+                ConstraintViolationException.class,
+                () -> userService.updateUserService(userDto, userDto.getId()));
+    }
+
+    @Test
+    void deleteUserServiceWtihBadIdTest() {
         Mockito.when(userRepoJpa.findById(777))
                 .thenThrow(new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = 777 не найден в базе данных"));
         NotFoundException exception =
@@ -140,6 +179,29 @@ class UserServiceTest {
     }
 
     @Test
-    void getUserSerivece() {
+    void deleteUserServiceTest() {
+        when(userRepoJpa.save(any()))
+                .thenReturn(user);
+        UserDTO userDTO = mapper.map(user, UserDTO.class);
+        assertEquals(userDTO.getEmail(), userService.createUserSerivce(userDTO).getEmail());
+
+        Mockito.when(userRepoJpa.findById(1))
+                .thenReturn(Optional.ofNullable(user));
+        userService.deleteUserService(1);
+
+        assertThrows(IndexOutOfBoundsException.class,
+                () -> userRepoJpa.findAll().get(0));
+
+
+    }
+
+    @Test
+    void getUserByIdTest() {
+        Mockito.when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+        userService.getUserSerivece(1);
+        UserDTO userDTO = mapper.map(user, UserDTO.class);
+
+        assertEquals(userDTO, userService.getUserSerivece(1));
     }
 }

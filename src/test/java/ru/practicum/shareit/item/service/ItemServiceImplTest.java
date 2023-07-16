@@ -7,11 +7,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.configurationprocessor.metadata.ItemDeprecation;
 import org.springframework.http.HttpStatus;
+import ru.practicum.shareit.booking.dto.BookingForResponse;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repossitory.BookingRepoJpa;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.comment.CommentRepoJpa;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.model.Item;
@@ -21,6 +24,8 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
 
 import javax.validation.ConstraintViolationException;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,6 +53,8 @@ class ItemServiceImplTest {
     private User user;
     private UserDTO userDTO;
     private ItemDTO itemDTO;
+    private Comment comment;
+    private Booking booking;
     private Item item;
 
     @BeforeEach
@@ -80,6 +87,22 @@ class ItemServiceImplTest {
                 .request(1)
                 .owner(user)
                 .build();
+        comment = new Comment().builder()
+                .id(1L)
+                .content("Комментарий")
+                .author(user)
+                .item(item)
+                .created(LocalDateTime.now())
+                .build();
+
+        booking = new Booking ().builder()
+                .id(1)
+                .start(LocalDateTime.now().plusMonths(1))
+                .end(LocalDateTime.of(2024, 7, 9, 13, 56))
+                .item(item)
+                .booker(user)
+                .status(Status.WAITING)
+                .build();
 
         itemService = new ItemServiceImpl(itemRepoJpa, userRepoJpa, commentRepoJpa,
                 bookingRepoJpa);
@@ -92,7 +115,7 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void createService() {
+    void createServiceTest() {
         when(itemRepoJpa.save(any()))
                 .thenReturn(item);
         when(userRepoJpa.findById(any()))
@@ -105,48 +128,52 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void createItemWithEmptyName() {
+    void createItemWithEmptyNameTest() {
         item.setName("");
-        ItemDTO itemDTO1  = mapper.map(item, ItemDTO.class);
-        var exception =  assertThrows(
+        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
+        var exception = assertThrows(
                 ConstraintViolationException.class,
                 () -> itemService.createService(itemDTO1, 999));
 
         assertEquals("name: не должно быть пустым", exception.getMessage());
     }
+
     @Test
-    void createItemWithEmptyDesctription() {
+    void createItemWithEmptyDesctriptionTest() {
         item.setDescription("");
-        ItemDTO itemDTO1  = mapper.map(item, ItemDTO.class);
-        var exception =  assertThrows(
+        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
+        var exception = assertThrows(
                 ConstraintViolationException.class,
                 () -> itemService.createService(itemDTO1, 999));
 
         assertEquals("description: не должно быть пустым", exception.getMessage());
     }
+
     @Test
-    void createItemWithEmptyAvailable() {
+    void createItemWithEmptyAvailableTest() {
         item.setAvailable(null);
-        ItemDTO itemDTO1  = mapper.map(item, ItemDTO.class);
-        var exception =  assertThrows(
+        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
+        var exception = assertThrows(
                 ConstraintViolationException.class,
                 () -> itemService.createService(itemDTO1, 999));
 
         assertEquals("available: не должно равняться null", exception.getMessage());
     }
+
     @Test
-    void createItemWithWrongUserID() {
-       when(userRepoJpa.findById(77))
-                .thenThrow(new NotFoundException(HttpStatus.NOT_FOUND,"Пользователь с id=77 не найден"));
-        ItemDTO itemDTO1  = mapper.map(item, ItemDTO.class);
-        var exception =  assertThrows(
+    void createItemWithWrongUserIDTest() {
+        when(userRepoJpa.findById(77))
+                .thenThrow(new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id=77 не найден"));
+        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
+        var exception = assertThrows(
                 NotFoundException.class,
                 () -> itemService.createService(itemDTO1, 77));
 
         assertEquals("404 NOT_FOUND \"Пользователь с id=77 не найден\"", exception.getMessage());
     }
+
     @Test
-    void updateService() {
+    void updateServiceTest() {
         when(itemRepoJpa.findById(any()))
                 .thenReturn(Optional.ofNullable(item));
 
@@ -155,42 +182,45 @@ class ItemServiceImplTest {
         when(itemRepoJpa.save(any()))
                 .thenReturn(item);
 
-       ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
+        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
 //        Item  item  = mapper.map(itemDTO, Item .class);
-          itemDTO1.setName("Щётка для обуви updated");
-          itemDTO1.setDescription("Стандартная щётка для обуви updated");
-        ItemDTO updatedItem = itemService.updateService( itemDTO1,1,1);
+        itemDTO1.setName("Щётка для обуви updated");
+        itemDTO1.setDescription("Стандартная щётка для обуви updated");
+        ItemDTO updatedItem = itemService.updateService(itemDTO1, 1, 1);
         assertEquals(updatedItem, itemDTO1);
 
     }
+
     @Test
-    void updateItemWithWrongUserId() {
+    void updateItemWithWrongUserIdTest() {
         when(itemRepoJpa.findById(any()))
                 .thenReturn(Optional.ofNullable(item));
         when(userRepoJpa.findById(77))
-                .thenThrow(new NotFoundException(HttpStatus.NOT_FOUND,"Пользователь с id=77 не найден"));
-        ItemDTO itemDTO1  = mapper.map(item, ItemDTO.class);
+                .thenThrow(new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id=77 не найден"));
+        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
 
-        var exception =  assertThrows(
+        var exception = assertThrows(
                 NotFoundException.class,
-                () -> itemService.updateService( itemDTO1,1,77));
+                () -> itemService.updateService(itemDTO1, 1, 77));
 
         assertEquals("404 NOT_FOUND \"Пользователь с id=77 не найден\"", exception.getMessage());
 
     }
+
     @Test
-    void updateItemWithWrongItemId() {
+    void updateItemWithWrongItemIdTest() {
 
 
-      ItemDTO itemDTO1  = mapper.map(item, ItemDTO.class);
+        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
 
-        var exception =  assertThrows(
+        var exception = assertThrows(
                 NotFoundException.class,
-                () -> itemService.updateService( itemDTO1,1,1));
+                () -> itemService.updateService(itemDTO1, 1, 1));
 
         assertEquals("404 NOT_FOUND \"Вещь c id = '1' не существует\"", exception.getMessage());
 
     }
+
     @Test
     void getByOwnerIdService() {
 
@@ -206,5 +236,19 @@ class ItemServiceImplTest {
 
     @Test
     void addComment() {
+        booking.setBooker(user);
+        item.setBookings(Collections.singletonList(booking));
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.ofNullable(user));
+        when(itemRepoJpa.findById(1))
+                .thenReturn(Optional.ofNullable(item));
+
+       when(commentRepoJpa.save( any()))
+                .thenReturn(comment);
+        CommentDto commentDto = mapper.map(comment, CommentDto.class);
+        CommentDto commentDto1 = itemService.addComment(1, 1, commentDto);
+
+
+        assertEquals(commentDto1, commentDto);
     }
 }

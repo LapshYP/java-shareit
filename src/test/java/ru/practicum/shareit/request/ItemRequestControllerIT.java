@@ -77,7 +77,7 @@ class ItemRequestControllerIT {
 
     @Test
     @SneakyThrows
-    void addItemRequest() {
+    void addItemRequestTest() {
 
 
         when(requestItemService.addItemRequestService(any(), anyInt()))
@@ -97,7 +97,7 @@ class ItemRequestControllerIT {
 
     @Test
     @SneakyThrows
-    void requestsGet() {
+    void requestsGetTest() {
         when(requestItemService.getItemRequestSerivice(anyInt()))
                 .thenReturn(List.of(requestDtoWithRequest));
 
@@ -115,7 +115,7 @@ class ItemRequestControllerIT {
 
     @Test
     @SneakyThrows
-    void requestsAllGet() {
+    void requestsAllGetTest() {
         when(requestItemService.getItemRequestAllSerivice(1, 0, 20))
                 .thenReturn(List.of(requestDtoWithRequest));
 
@@ -131,7 +131,7 @@ class ItemRequestControllerIT {
 
     @Test
     @SneakyThrows
-    void getRequestById() {
+    void getRequestByIdTest() {
         when(requestItemService.getRequestById(anyInt(), anyInt()))
                 .thenReturn(requestDtoWithRequest);
 

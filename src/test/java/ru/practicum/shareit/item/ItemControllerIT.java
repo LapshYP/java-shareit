@@ -11,12 +11,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.dto.ItemLastNextDTO;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -26,7 +24,6 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -46,7 +43,6 @@ class ItemControllerIT {
     private ItemDTO itemDTO;
     private ItemLastNextDTO ItemLastNextDTO;
     private CommentDto commentDto;
-    private User user;
 
     @BeforeEach
     void setUp() {
@@ -84,7 +80,7 @@ class ItemControllerIT {
 
     @SneakyThrows
     @Test
-    void searchFilms() {
+    void searchFilmsTest() {
         when(itemService.searchByParamService("name"))
                 .thenReturn(List.of(itemDTO));
 
@@ -100,7 +96,7 @@ class ItemControllerIT {
 
     @Test
     @SneakyThrows
-    void getItemById() {
+    void getItemByIdTest() {
         when(itemService.getByOwnerIdService(anyInt(), anyInt()))
                 .thenReturn(ItemLastNextDTO);
 
@@ -118,7 +114,7 @@ class ItemControllerIT {
 
     @Test
     @SneakyThrows
-    void getItemByUserId() {
+    void getItemByUserIdTest() {
 
 
         when(itemService.getByBookerIdService(anyInt()))
@@ -137,7 +133,7 @@ class ItemControllerIT {
 
     @SneakyThrows
     @Test
-    void createItem() {
+    void createItemTest() {
         when(itemService.createService(any(), anyInt()))
                 .thenReturn(itemDTO);
 
@@ -154,7 +150,7 @@ class ItemControllerIT {
 
     @SneakyThrows
     @Test
-    void updateItem() {
+    void updateItemTest() {
         when(itemService.updateService(any(), anyInt(), anyInt()))
                 .thenReturn(itemDTO);
 
@@ -169,18 +165,4 @@ class ItemControllerIT {
 
     }
 
-//    @SneakyThrows
-//    @Test
-//    void addCommentToItem() {
-//        when(itemService.addComment(any(), anyInt(), commentDto)).thenReturn(commentDto);
-//        String writeValueAsString = objectMapper.writeValueAsString(commentDto);
-//        mockMvc.perform(post("/items/{itemId}/comment", 1)
-//                        .header("X-Sharer-User-Id", 1)
-//                        .content(objectMapper.writeValueAsString(commentDto))
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id", is(commentDto.getId())))
-//                .andExpect(jsonPath("$.text", is(commentDto.getContent())));
-//    }
 }

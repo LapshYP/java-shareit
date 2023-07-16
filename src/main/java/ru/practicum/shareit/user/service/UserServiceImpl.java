@@ -7,7 +7,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.exception.DubleException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
@@ -70,11 +69,7 @@ public class UserServiceImpl implements UserService {
         }
 
         if (user.getEmail() != null) {
-//            int userCount = userRepoJpa.findByIdAndEmail(updatedUser.getId(), updatedUser.getEmail()).size();
-//            if (userCount != 1) {
-//                log.error("Пользователь с email = {} уже существует", user.getEmail());
-//                throw new DubleException("Такой емейл уже существует");
-//            }
+
             updatedUser.setEmail(user.getEmail());
         }
 

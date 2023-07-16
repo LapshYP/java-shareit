@@ -17,21 +17,22 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
-   Long id;
+    Long id;
     @NotBlank
     @Column(name = "text")
-   String content;
+    String content;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "item_id")
-   Item item;
+    Item item;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id")
     @JsonProperty("authorName")
-   User author;
+    User author;
     @Column
-   LocalDateTime created;
+    LocalDateTime created;
 }

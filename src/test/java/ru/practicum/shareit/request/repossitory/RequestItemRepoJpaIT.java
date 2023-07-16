@@ -59,7 +59,7 @@ class RequestItemRepoJpaIT {
 
 
     @Test
-    void findAllByRequestor_Id() {
+    void findAllByRequestor_IdTest() {
         List<Request> requestList = requestItemRepoJpa.findAllByRequestor_Id(1);
 
         assertEquals(requestList.get(0).getId(), request.getId());
@@ -72,7 +72,7 @@ class RequestItemRepoJpaIT {
     }
 
     @Test
-    void findByOwnerId() {
+    void findByOwnerIdTest() {
         List<Request> requestList = requestItemRepoJpa.findByOwnerId(0, null);
 
         assertEquals(requestList.get(0).getId(), request.getId());

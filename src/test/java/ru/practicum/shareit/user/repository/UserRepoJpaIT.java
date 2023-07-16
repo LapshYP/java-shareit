@@ -32,7 +32,7 @@ class UserRepoJpaIT {
 
     @Test
     @Transactional
-    void findByIdAndEmail() {
+    void findByIdAndEmailTest() {
 
         List<User> userList = userRepoJpa.findByIdAndEmail(1, "ivan@mail.ru");
 

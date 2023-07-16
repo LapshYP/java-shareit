@@ -48,7 +48,7 @@ class ItemRepoJpaIT {
     }
 
     @Test
-    void findAllByOwnerOrderById() {
+    void findAllByOwnerOrderByIdTest() {
         User user = userRepoJpa.findById(1).get();
         List<Item> items = itemRepoJpa.findAllByOwnerOrderById(user);
 
@@ -59,7 +59,7 @@ class ItemRepoJpaIT {
     }
 
     @Test
-    void searchByParam() {
+    void searchByParamTest() {
         List<Item> itemList = itemRepoJpa.searchByParam("Щётка".toLowerCase());
 
         assertEquals(itemList.get(0).getId(), item.getId());

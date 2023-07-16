@@ -113,6 +113,11 @@ public class ItemServiceImpl implements ItemService {
         User owner = userRepoJpa.findById(userId)
                 .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
 
+        ItemLastNextDTO itemLastNextDTO = getItemLastNextDTO(itemId, userId, item);
+        return itemLastNextDTO;
+    }
+
+    private ItemLastNextDTO getItemLastNextDTO(int itemId, int userId, Item item) {
         List<Booking> allBookings = item.getBookings();
 
         Booking lastBooking = null;
@@ -175,9 +180,13 @@ public class ItemServiceImpl implements ItemService {
         log.debug("Список всех вещей просмотрен");
         User booker = userRepoJpa.findById(userId).orElseThrow(() ->
                 new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
-
-        List<Item> items = itemRepoJpa.findAllByOwnerOrderById(booker);
         List<ItemLastNextDTO> itemLastNextDTOList = new ArrayList<>();
+        return  extracted(booker, itemLastNextDTOList);
+
+    }
+
+    private List<ItemLastNextDTO> extracted(User booker, List<ItemLastNextDTO> itemLastNextDTOList) {
+        List<Item> items = itemRepoJpa.findAllByOwnerOrderById(booker);
         LocalDateTime now = LocalDateTime.now();
         for (Item item : items) {
             ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
@@ -228,9 +237,7 @@ public class ItemServiceImpl implements ItemService {
 
             itemLastNextDTOList.add(itemLastNextDTO);
         }
-
         return itemLastNextDTOList;
-
     }
 
     @Override
@@ -283,11 +290,13 @@ public class ItemServiceImpl implements ItemService {
         if (bookings
                 .stream()
                 .filter(booking -> (booking.getBooker().getId() == userId)
-                        && booking.getEnd().isBefore(LocalDateTime.now())
+//                        && booking.getEnd().isBefore(LocalDateTime.now())
+                          && !booking.getStart().isAfter(LocalDateTime.now())
+                         && !booking.getStatus().equals(Status.REJECTED)
                 )
                 .collect(Collectors.toList()).size() == 0) {
             throw new BadRequestException(HttpStatus.BAD_REQUEST,
-                    "Комментировать может только арендатор вещи");
+                    "Комментировать может только арендатор вещи, с наступившим началом букинга и статусом НЕ REJECTED");
         }
 
         Comment comment = mapper.map(commentDto, Comment.class);
