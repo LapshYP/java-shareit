@@ -28,18 +28,19 @@ public class ItemRequestController {
 
         return requestItemService.getItemRequestSerivice(userId);
     }
-    @GetMapping(path = "/all")
-    List<RequestDtoWithRequest> requestsAllGet (@RequestHeader("X-Sharer-User-Id") int userId,
-                                     @RequestParam(name = "from", defaultValue = "0") Integer from,
-                                     @RequestParam(name = "size", defaultValue = "20") Integer size) {
 
-        return requestItemService.getItemRequestAllSerivice(userId,from,size);
+    @GetMapping(path = "/all")
+    List<RequestDtoWithRequest> requestsAllGet(@RequestHeader("X-Sharer-User-Id") int userId,
+                                               @RequestParam(name = "from", defaultValue = "0") Integer from,
+                                               @RequestParam(name = "size", defaultValue = "20") Integer size) {
+
+        return requestItemService.getItemRequestAllSerivice(userId, from, size);
     }
 
     @GetMapping("{requestId}")
     public RequestDtoWithRequest getRequestById(@RequestHeader("X-Sharer-User-Id") int userId,
-                                                        @PathVariable int requestId) {
-         return requestItemService.getRequestById(userId, requestId);
+                                                @PathVariable int requestId) {
+        return requestItemService.getRequestById(userId, requestId);
     }
 
 }

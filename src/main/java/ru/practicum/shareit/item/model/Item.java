@@ -1,12 +1,9 @@
 package ru.practicum.shareit.item.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.comment.Comment;
-import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -47,9 +44,9 @@ public class Item {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
-     User owner;
+    User owner;
 
-   // @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    // @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "requestitem_id")
 //    //@JsonBackReference

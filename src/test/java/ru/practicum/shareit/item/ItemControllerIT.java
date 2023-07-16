@@ -41,7 +41,7 @@ class ItemControllerIT {
     private ItemService itemService;
 
     private ItemDTO itemDTO;
-    private ItemLastNextDTO ItemLastNextDTO;
+    private ItemLastNextDTO itemLastNextDTO;
     private CommentDto commentDto;
 
     @BeforeEach
@@ -55,7 +55,7 @@ class ItemControllerIT {
                 .ownerId(1)
                 .build();
 
-        ItemLastNextDTO = new ItemLastNextDTO().builder()
+        itemLastNextDTO = new ItemLastNextDTO().builder()
                 .id(1)
                 .name("Щётка для обуви")
                 .description("Стандартная щётка для обуви")
@@ -98,11 +98,11 @@ class ItemControllerIT {
     @SneakyThrows
     void getItemByIdTest() {
         when(itemService.getByOwnerIdService(anyInt(), anyInt()))
-                .thenReturn(ItemLastNextDTO);
+                .thenReturn(itemLastNextDTO);
 
         mockMvc.perform(get("/items/{id}", itemDTO.getId())
                         .header("X-Sharer-User-Id", 1)
-                        .content(objectMapper.writeValueAsString(ItemLastNextDTO))
+                        .content(objectMapper.writeValueAsString(itemLastNextDTO))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
@@ -118,7 +118,7 @@ class ItemControllerIT {
 
 
         when(itemService.getByBookerIdService(anyInt()))
-                .thenReturn(List.of(ItemLastNextDTO));
+                .thenReturn(List.of(itemLastNextDTO));
 
         mockMvc.perform(get("/items")
                         .header("X-Sharer-User-Id", 1)
@@ -126,8 +126,8 @@ class ItemControllerIT {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name", is(ItemLastNextDTO.getName())))
-                .andExpect(jsonPath("$[0].description", is(ItemLastNextDTO.getDescription())));
+                .andExpect(jsonPath("$[0].name", is(itemLastNextDTO.getName())))
+                .andExpect(jsonPath("$[0].description", is(itemLastNextDTO.getDescription())));
 
     }
 

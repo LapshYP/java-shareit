@@ -12,7 +12,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.practicum.shareit.user.dto.UserDTO;
-import ru.practicum.shareit.user.repository.UserRepoJpa;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.nio.charset.StandardCharsets;
@@ -37,7 +36,7 @@ class UserControllerIT {
     @MockBean
     private UserService userService;
 
-    private UserDTO userDto ;
+    private UserDTO userDto;
     private UserDTO userDto2;
 
     @BeforeEach
