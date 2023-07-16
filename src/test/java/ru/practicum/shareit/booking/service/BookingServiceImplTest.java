@@ -218,7 +218,7 @@ class BookingServiceImplTest {
         var exception = assertThrows(
                 BadRequestException.class,
                 () -> bookingService.makeBookingService(bookingDto3, 1));
-        assertEquals("404 NOT_FOUND \"Ошибка времени создания букинга(start в прошлом)\"",
+        assertEquals("404 NOT_FOUND \"Ошибка времени создания букинга\"",
                 exception.getMessage());
     }
 
