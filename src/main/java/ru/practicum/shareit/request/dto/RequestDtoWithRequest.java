@@ -22,7 +22,6 @@ public class RequestDtoWithRequest {
     UserDTO requestor;
     @JsonProperty("created")
     LocalDateTime createdtime;
-
     List<ItemDTO> items = new ArrayList<>();
 
     @Override
