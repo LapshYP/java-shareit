@@ -17,11 +17,8 @@ import java.util.Objects;
 @AllArgsConstructor
 @Builder
 public class RequestDtoWithRequest {
- 
     int id;
-
     String description;
-
     UserDTO requestor;
     @JsonProperty("created")
     LocalDateTime createdtime;
