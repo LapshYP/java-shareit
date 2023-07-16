@@ -31,7 +31,7 @@ public class Item {
     @NotBlank(message = "must not be blank")
     String description;
     @Column
-    @NotNull( message = "must not be null")
+    @NotNull(message = "must not be null")
     Boolean available;
 
     @Column
@@ -46,10 +46,4 @@ public class Item {
     @JoinColumn(name = "owner_id")
     User owner;
 
-    // @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "requestitem_id")
-//    //@JsonBackReference
-//   //  @JsonIgnore
-//    Request requestItem;
 }
