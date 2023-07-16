@@ -69,7 +69,7 @@ public class BookingServiceImpl implements BookingService {
 
         if (bookingDto.getStart().isBefore(LocalDateTime.now())
         ) {
-            throw new BadRequestException(HttpStatus.NOT_FOUND, "Ошибка времени создания букинга)");
+            throw new BadRequestException(HttpStatus.NOT_FOUND, "Ошибка времени создания букинга");
         }
         if (item.getAvailable() == false) {
             throw new BadRequestException(HttpStatus.NOT_FOUND, "вещь не доступна");
