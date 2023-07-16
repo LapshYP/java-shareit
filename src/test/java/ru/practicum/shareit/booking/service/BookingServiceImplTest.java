@@ -15,6 +15,7 @@ import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repossitory.BookingRepoJpa;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.UnsupportedStatusException;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepoJpa;
@@ -284,19 +285,94 @@ class BookingServiceImplTest {
 
         assertEquals(expectedResult, bookingService.getAllForBookerService("ALL", 1, 0, 20));
     }
+
     @Test
-    void getCURRENTForBookerServiceTest() {
+    void getAllForBookerServiceFUTURETest() {
         Booking booking = mapper.map(bookingForResponse, Booking.class);
 
         when(userRepoJpa.findById(1))
                 .thenReturn(Optional.of(user));
 
-        when(bookingRepoJpa.findAllByBookerOrderByStartDesc(any(), any()))
+        when(bookingRepoJpa.findAllByBookerAndStartIsAfterOrderByStartDesc(any(), any(), any()))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
+
+        assertEquals(expectedResult, bookingService.getAllForBookerService("FUTURE", 1, 0, 20));
+    }
+
+    @Test
+    void getAllForBookerServiceWAITINGTest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepoJpa.findAllByBookerAndStatusEqualsOrderByStartDesc(any(), any(), any()))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
+
+        assertEquals(expectedResult, bookingService.getAllForBookerService("WAITING", 1, 0, 20));
+    }
+
+    @Test
+    void getAllForBookerServiceREJECTEDTest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepoJpa.findAllByBookerAndStatusEqualsOrderByStartDesc(any(), any(), any()))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
+
+        assertEquals(expectedResult, bookingService.getAllForBookerService("REJECTED", 1, 0, 20));
+    }
+
+    @Test
+    void getAllForBookerServiceCURRENTTest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepoJpa.findAllBookingsForBookerWithStartAndEnd(any(), any(), any(), any()))
                 .thenReturn(Collections.singletonList(booking));
 
         List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
 
         assertEquals(expectedResult, bookingService.getAllForBookerService("CURRENT", 1, 0, 20));
+    }
+
+    @Test
+    void getAllForBookerServicePASTTest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepoJpa.findAllByBookerAndEndIsBeforeOrderByStartDesc(any(), any(), any()))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
+
+        assertEquals(expectedResult, bookingService.getAllForBookerService("PAST", 1, 0, 20));
+    }
+
+    @Test
+    void getAllForBookerServiceUNKNOWNTest() {
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        var exception = assertThrows(
+                UnsupportedStatusException.class,
+                () -> bookingService.getAllForBookerService("UNKNOWN", 1, 0, 20));
+        assertEquals("Unknown bookingState: UNSUPPORTED_STATUS",
+                exception.getMessage());
+
     }
 
     @Test
@@ -312,6 +388,98 @@ class BookingServiceImplTest {
         List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
 
         assertEquals(expectedResult, bookingService.getAllForOwnerService("ALL", 1, 0, 20));
+    }
+
+    @Test
+    void getAllForOwnerServiceCURRENTTest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepoJpa.findAllBookingsForOwnerWithStartAndEnd(any(), any(), any(), any()))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
+
+        assertEquals(expectedResult, bookingService.getAllForOwnerService("CURRENT", 1, 0, 20));
+    }
+
+    @Test
+    void getAllForOwnerServicePASTTest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepoJpa.findAllByOwnerAndEndIsBeforeOrderByStartDesc(any(), any(), any()))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
+
+        assertEquals(expectedResult, bookingService.getAllForOwnerService("PAST", 1, 0, 20));
+    }
+
+    @Test
+    void getAllForOwnerServiceFUTURETest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepoJpa.findAllByOwnerAndStartIsAfterOrderByStartDesc(anyInt(), any(), any()))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
+
+        assertEquals(expectedResult, bookingService.getAllForOwnerService("FUTURE", 1, 0, 20));
+    }
+
+    @Test
+    void getAllForOwnerServiceWAITINGTest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(anyInt(), any(), any()))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
+
+        assertEquals(expectedResult, bookingService.getAllForOwnerService("WAITING", 1, 0, 20));
+    }
+
+    @Test
+    void getAllForOwnerServiceREJECTEDTest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(anyInt(), any(), any()))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
+
+        assertEquals(expectedResult, bookingService.getAllForOwnerService("REJECTED", 1, 0, 20));
+    }
+
+    @Test
+    void getAllForOwnerServiceUNKNOWNTest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+
+        List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
+
+        var exception = assertThrows(
+                UnsupportedStatusException.class,
+                () -> bookingService.getAllForOwnerService("UNKNOWN", 1, 0, 20));
+        assertEquals("Unknown bookingState: UNSUPPORTED_STATUS",
+                exception.getMessage());
     }
 
     @Test

@@ -75,6 +75,12 @@
 			<artifactId>h2</artifactId>
 			<version>2.1.214</version>
 		</dependency>
+		<dependency>
+			<groupId>org.javassist</groupId>
+			<artifactId>javassist</artifactId>
+			<version>3.23.1-GA</version>
+		</dependency>
+
 
 	</dependencies>
 
