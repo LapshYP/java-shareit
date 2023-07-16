@@ -4,8 +4,6 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
@@ -35,12 +33,12 @@ class BookingRepoJpaIT {
 
     private User booker1;
     private User booker2;
-    private  Item item1;
-    private  Item item2;
-    private  Booking booking1;
-    private  Booking booking2;
-    private  Booking booking3;
-    private  Booking booking4;
+    private Item item1;
+    private Item item2;
+    private Booking booking1;
+    private Booking booking2;
+    private Booking booking3;
+    private Booking booking4;
 
 
     @BeforeEach
@@ -65,7 +63,7 @@ class BookingRepoJpaIT {
                 .request(1)
                 .owner(booker1)
                 .build());
-         item2 = itemRepoJpa.save(new Item().builder()
+        item2 = itemRepoJpa.save(new Item().builder()
                 .id(2)
                 .name("Щётка для ванны")
                 .description("Стандартная щётка для ванны")
@@ -82,7 +80,7 @@ class BookingRepoJpaIT {
                 .item(item1)
                 .status(Status.APPROVED)
                 .build());
-         booking2 = bookingRepoJpa.save(new Booking().builder()
+        booking2 = bookingRepoJpa.save(new Booking().builder()
                 .id(2)
                 .start(LocalDateTime.of(2024, 7, 9, 13, 56))
                 .end(LocalDateTime.of(2025, 7, 9, 13, 56))
@@ -90,7 +88,7 @@ class BookingRepoJpaIT {
                 .item(item2)
                 .build());
 
-         booking3 = bookingRepoJpa.save(new Booking().builder()
+        booking3 = bookingRepoJpa.save(new Booking().builder()
                 .id(3)
                 .start(LocalDateTime.of(2023, 7, 9, 13, 56))
                 .end(LocalDateTime.of(2024, 7, 9, 13, 56))
@@ -99,7 +97,7 @@ class BookingRepoJpaIT {
                 .status(Status.WAITING)
                 .build());
 
-         booking4 = bookingRepoJpa.save(new Booking().builder()
+        booking4 = bookingRepoJpa.save(new Booking().builder()
                 .id(4)
                 .start(LocalDateTime.of(2022, 7, 9, 13, 56))
                 .end(LocalDateTime.of(2023, 7, 9, 13, 56))
@@ -108,6 +106,7 @@ class BookingRepoJpaIT {
                 .status(Status.REJECTED)
                 .build());
     }
+
     @AfterEach
     void tearDown() {
         userRepoJpa.deleteAll();
@@ -115,6 +114,7 @@ class BookingRepoJpaIT {
         bookingRepoJpa.deleteAll();
 
     }
+
     @Test
     public void contextLoads() {
         assertNotNull(em);
@@ -122,10 +122,10 @@ class BookingRepoJpaIT {
 
     @Test
     @Transactional
-    void getAllForOwner() {
+    void getAllForOwnerTest() {
         List<Booking> bookingList = bookingRepoJpa.getAllForOwner(booker1.getId(), null);
 
-        assertEquals(bookingList.get(0).getId(),  booking1.getId());
+        assertEquals(bookingList.get(0).getId(), booking1.getId());
         assertEquals(bookingList.get(0).getStart(), LocalDateTime.of(2023, 7, 9, 13, 56));
         assertEquals(bookingList.get(0).getEnd(), LocalDateTime.of(2024, 7, 9, 13, 56));
 
@@ -133,9 +133,8 @@ class BookingRepoJpaIT {
     }
 
     @Test
-   @Transactional
-
-    void findAllByBookerAndStartIsAfterOrderByStartDesc() {
+    @Transactional
+    void findAllByBookerAndStartIsAfterOrderByStartDescTest() {
         User booker = userRepoJpa.findById(booker2.getId()).get();
         List<Booking> bookingList = bookingRepoJpa.findAllByBookerAndStartIsAfterOrderByStartDesc(booker, LocalDateTime.now());
 
@@ -147,7 +146,7 @@ class BookingRepoJpaIT {
 
     @Test
     @Transactional
-    void findAllByBookerOrderByStartDesc() {
+    void findAllByBookerOrderByStartDescTest() {
 
         List<Booking> bookingList = bookingRepoJpa.findAllByBookerOrderByStartDesc(booker1, null);
 
@@ -158,10 +157,10 @@ class BookingRepoJpaIT {
 
     @Test
     @Transactional
-    void findAllByOwnerAndStartIsAfterOrderByStartDesc() {
+    void findAllByOwnerAndStartIsAfterOrderByStartDescTest() {
         List<Booking> bookingList = bookingRepoJpa.findAllByOwnerAndStartIsAfterOrderByStartDesc(booker2.getId(), LocalDateTime.now());
 
-        assertEquals(bookingList.get(0).getId(),  booking2.getId());
+        assertEquals(bookingList.get(0).getId(), booking2.getId());
         assertEquals(bookingList.get(0).getBooker().getName(), "Petr");
         assertEquals(bookingList.get(0).getStart(), LocalDateTime.of(2024, 7, 9, 13, 56));
         assertEquals(bookingList.get(0).getEnd(), LocalDateTime.of(2025, 7, 9, 13, 56));
@@ -170,7 +169,7 @@ class BookingRepoJpaIT {
 
     @Test
     @Transactional
-    void findAllBookingsForBookerWithStartAndEnd() {
+    void findAllBookingsForBookerWithStartAndEndTest() {
 
         LocalDateTime localDateTime = LocalDateTime.now();
         List<Booking> bookingList = bookingRepoJpa.findAllBookingsForBookerWithStartAndEnd(
@@ -185,7 +184,7 @@ class BookingRepoJpaIT {
 
     @Test
     @Transactional
-    void findAllByBookerAndStatusEqualsOrderByStartDesc() {
+    void findAllByBookerAndStatusEqualsOrderByStartDescTest() {
 
         List<Booking> bookingList = bookingRepoJpa
                 .findAllByBookerAndStatusEqualsOrderByStartDesc(booker1, Status.APPROVED);
@@ -199,7 +198,7 @@ class BookingRepoJpaIT {
 
     @Test
     @Transactional
-    void findAllByOwnerAndStatusEqualsOrderByStartDesc() {
+    void findAllByOwnerAndStatusEqualsOrderByStartDescTest() {
 
         List<Booking> bookingList = bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(booker2.getId(), Status.WAITING);
 
@@ -212,7 +211,7 @@ class BookingRepoJpaIT {
 
     @Test
     @Transactional
-    void findAllBookingsForOwnerWithStartAndEnd() {
+    void findAllBookingsForOwnerWithStartAndEndTest() {
         User owener = booker2;
         LocalDateTime localDateTime = LocalDateTime.now();
         List<Booking> bookingList = bookingRepoJpa.findAllBookingsForOwnerWithStartAndEnd(owener, localDateTime, localDateTime);
@@ -225,7 +224,7 @@ class BookingRepoJpaIT {
 
     @Test
     @Transactional
-    void findAllByOwnerAndEndIsBeforeOrderByStartDesc() {
+    void findAllByOwnerAndEndIsBeforeOrderByStartDescTest() {
         User owener = booker2;
         LocalDateTime localDateTime = LocalDateTime.now();
         List<Booking> bookingList = bookingRepoJpa.findAllByOwnerAndEndIsBeforeOrderByStartDesc(owener, localDateTime);
@@ -240,7 +239,7 @@ class BookingRepoJpaIT {
 
     @Test
     @Transactional
-    void findAllByBookerAndEndIsBeforeOrderByStartDesc() {
+    void findAllByBookerAndEndIsBeforeOrderByStartDescTest() {
 
         List<Booking> bookingList = bookingRepoJpa
                 .findAllByBookerAndEndIsBeforeOrderByStartDesc(booker1, LocalDateTime.now());

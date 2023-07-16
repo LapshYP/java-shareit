@@ -7,13 +7,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingForResponse;
-import ru.practicum.shareit.booking.dto.BookingLastNextItemDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repossitory.BookingRepoJpa;
-import ru.practicum.shareit.item.comment.CommentRepoJpa;
+import ru.practicum.shareit.exception.BadRequestException;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepoJpa;
@@ -27,41 +28,33 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
-
-
     @Mock
     private ItemRepoJpa itemRepoJpa;
-
     @Mock
     private UserRepoJpa userRepoJpa;
-
     @Mock
     private BookingRepoJpa bookingRepoJpa;
-
-    @Mock
-    private CommentRepoJpa commentRepoJpa;
     private ModelMapper mapper = new ModelMapper();
     private BookingDto bookingDto;
+    private BookingDto bookingDto1;
+    private BookingDto bookingDto2;
+    private BookingDto bookingDto3;
     private UserDTO userDTO;
     private User user;
     private ItemDTO itemDTO;
-    private Item item;
     private Item item2;
-    private BookingLastNextItemDto bookingLastNextItemDto;
     private BookingForResponse bookingForResponse;
-
     private BookingService bookingService;
 
     @BeforeEach
     void setUp() {
-
-
         userDTO = new UserDTO().builder()
                 .id(1)
                 .name("Ivan")
@@ -77,14 +70,7 @@ class BookingServiceImplTest {
                 .name("Petr")
                 .email("petr@mail.ru")
                 .build();
-        item = new Item().builder()
-                .id(1)
-                .name("Щётка для обуви")
-                .description("Стандартная щётка для обуви")
-                .available(true)
-                .request(1)
-                .owner(user)
-                .build();
+
         item2 = new Item().builder()
                 .id(2)
                 .name("Щётка для ванны")
@@ -121,18 +107,33 @@ class BookingServiceImplTest {
                 .status(Status.WAITING)
                 .build();
 
-        bookingLastNextItemDto = new BookingLastNextItemDto().builder()
+        bookingDto1 = new BookingDto().builder()
                 .id(1)
-                .startTime(LocalDateTime.of(2023, 7, 9, 13, 56))
-                .endTime(LocalDateTime.of(2024, 7, 9, 13, 56))
-                .bookerId(1)
+                .start(LocalDateTime.now().plusMonths(1))
+                .end(LocalDateTime.now().minusMonths(1))
+                .itemId(1)
+                .booker(user)
+                .status(Status.WAITING)
+                .build();
+        bookingDto2 = new BookingDto().builder()
+                .id(1)
+                .start(LocalDateTime.now().minusMonths(1))
+                .end(LocalDateTime.now().minusMonths(1))
+                .itemId(1)
+                .booker(user)
+                .status(Status.WAITING)
+                .build();
+        bookingDto3 = new BookingDto().builder()
+                .id(1)
+                .start(LocalDateTime.now())
+                .end(LocalDateTime.now().minusMonths(1))
+                .itemId(1)
+                .booker(user)
                 .status(Status.WAITING)
                 .build();
 
-
         bookingService = new BookingServiceImpl(bookingRepoJpa, itemRepoJpa,
                 userRepoJpa);
-
     }
 
     @AfterEach
@@ -140,7 +141,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void makeBookingService() {
+    void makeBookingServiceTest() {
         Booking booking = mapper.map(bookingDto, Booking.class);
         when(userRepoJpa.findById(1))
                 .thenReturn(Optional.of(user));
@@ -154,10 +155,99 @@ class BookingServiceImplTest {
         assertEquals(1, bookingForResponse1.getId());
     }
 
+    @Test
+    void makeBookingWithBadBookingTime1Test() {
 
+        when(itemRepoJpa.findById(1))
+                .thenReturn(Optional.of(item2));
+
+        var exception = assertThrows(
+                BadRequestException.class,
+                () -> bookingService.makeBookingService(bookingDto1, 1));
+        assertEquals("404 NOT_FOUND \"Ошибка времени создания букинга(start после end или start = end\"",
+                exception.getMessage());
+    }
 
     @Test
-    void getByBookerService() {
+    void makeBookingWithBadBookingTime2Test() {
+
+        when(itemRepoJpa.findById(1))
+                .thenReturn(Optional.of(item2));
+
+        var exception = assertThrows(
+                BadRequestException.class,
+                () -> bookingService.makeBookingService(bookingDto2, 1));
+        assertEquals("404 NOT_FOUND \"Ошибка времени создания букинга(start после end или start = end\"",
+                exception.getMessage());
+    }
+
+    @Test
+    void makeBookingWithBadBookingTime3Test() {
+
+        when(itemRepoJpa.findById(1))
+                .thenReturn(Optional.of(item2));
+
+        var exception = assertThrows(
+                BadRequestException.class,
+                () -> bookingService.makeBookingService(bookingDto3, 1));
+        assertEquals("404 NOT_FOUND \"Ошибка времени создания букинга(start после end или start = end\"",
+                exception.getMessage());
+    }
+
+    @Test
+    void makeBookingWithBadBookingTime4Test() {
+
+        when(itemRepoJpa.findById(1))
+                .thenReturn(Optional.of(item2));
+        bookingDto3.setStart(null);
+        bookingDto3.setEnd(null);
+        var exception = assertThrows(
+                BadRequestException.class,
+                () -> bookingService.makeBookingService(bookingDto3, 1));
+        assertEquals("404 NOT_FOUND \"Ошибка времени (null) создания букинга\"",
+                exception.getMessage());
+    }
+
+    @Test
+    void makeBookingWithBadBookingTime5Test() {
+
+        when(itemRepoJpa.findById(1))
+                .thenReturn(Optional.of(item2));
+        bookingDto3.setStart(LocalDateTime.now().minusYears(1));
+
+        var exception = assertThrows(
+                BadRequestException.class,
+                () -> bookingService.makeBookingService(bookingDto3, 1));
+        assertEquals("404 NOT_FOUND \"Ошибка времени создания букинга(start в прошлом)\"",
+                exception.getMessage());
+    }
+
+    @Test
+    void makeBookingWrongBookerIdTest() {
+        when(itemRepoJpa.findById(1))
+                .thenReturn(Optional.of(item2));
+        when(userRepoJpa.findById(77))
+                .thenThrow(new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id=77 не найден"));
+
+        var exception = assertThrows(
+                NotFoundException.class,
+                () -> bookingService.makeBookingService(bookingDto, 77));
+
+        assertEquals("404 NOT_FOUND \"Пользователь с id=77 не найден\"", exception.getMessage());
+    }
+
+    @Test
+    void makeBookingWrongItemTest() {
+
+        var exception = assertThrows(
+                NotFoundException.class,
+                () -> bookingService.makeBookingService(bookingDto, 77));
+
+        assertEquals("404 NOT_FOUND \"Вещь не найдена\"", exception.getMessage());
+    }
+
+    @Test
+    void getByBookerServiceTest() {
         Booking booking = mapper.map(bookingForResponse, Booking.class);
         when(bookingRepoJpa.findById(anyInt()))
                 .thenReturn(Optional.of(booking));
@@ -167,7 +257,21 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getAllForBookerService() {
+    void getByBookerWrongOwnerIdTest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+        when(bookingRepoJpa.findById(anyInt()))
+                .thenReturn(Optional.of(booking));
+
+        var exception = assertThrows(
+                NotFoundException.class,
+                () -> bookingService.getByBookerService(1, 77));
+
+        assertEquals("404 NOT_FOUND \"Заказчик  не совпадает с собственником вещи\"", exception.getMessage());
+    }
+
+
+    @Test
+    void getAllForBookerServiceTest() {
         Booking booking = mapper.map(bookingForResponse, Booking.class);
 
         when(userRepoJpa.findById(1))
@@ -182,7 +286,7 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void getAllForOwnerService() {
+    void getAllForOwnerServiceTest() {
         Booking booking = mapper.map(bookingForResponse, Booking.class);
 
         when(userRepoJpa.findById(1))
@@ -197,13 +301,25 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void updateBooking() {
+    void updateBookingTest() {
         Booking booking = mapper.map(bookingForResponse, Booking.class);
 
         when(bookingRepoJpa.findById(anyInt()))
                 .thenReturn(Optional.ofNullable(booking));
-        BookingForResponse bookingForResponse1 = bookingService.updateBooking(1, 1,true);
+        BookingForResponse bookingForResponse1 = bookingService.updateBooking(1, 1, true);
 
         assertEquals(1, bookingForResponse1.getId());
     }
+
+    @Test
+    void updateBookingWithWrongBookerTest() {
+
+        var exception = assertThrows(
+                NotFoundException.class,
+                () -> bookingService.updateBooking(77, 1, true));
+        assertEquals("404 NOT_FOUND \"Букинг с таким айди не найден\"",
+                exception.getMessage());
+    }
+
+
 }

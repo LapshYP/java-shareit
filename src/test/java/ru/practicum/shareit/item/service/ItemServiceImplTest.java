@@ -8,10 +8,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import ru.practicum.shareit.booking.dto.BookingForResponse;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repossitory.BookingRepoJpa;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
@@ -19,7 +19,6 @@ import ru.practicum.shareit.item.comment.CommentRepoJpa;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepoJpa;
-import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
 
@@ -51,34 +50,21 @@ class ItemServiceImplTest {
     private ModelMapper mapper = new ModelMapper();
     private ItemService itemService;
     private User user;
-    private UserDTO userDTO;
-    private ItemDTO itemDTO;
+
     private Comment comment;
     private Booking booking;
     private Item item;
 
     @BeforeEach
     void setUp() {
-        userDTO = new UserDTO().builder()
-                .id(1)
-                .name("Ivan")
-                .email("ivan@mail.ru")
 
-                .build();
         user = new User().builder()
                 .id(1)
                 .name("Ivan")
                 .email("ivan@mail.ru")
                 .build();
 
-        itemDTO = new ItemDTO().builder()
-                .id(1)
-                .name("Щётка для обуви")
-                .description("Стандартная щётка для обуви")
-                .available(true)
-                .requestId(1)
-                .ownerId(1)
-                .build();
+
         item = new Item().builder()
                 .id(1)
                 .name("Щётка для обуви")
@@ -95,9 +81,9 @@ class ItemServiceImplTest {
                 .created(LocalDateTime.now())
                 .build();
 
-        booking = new Booking ().builder()
+        booking = new Booking().builder()
                 .id(1)
-                .start(LocalDateTime.now().plusMonths(1))
+                .start(LocalDateTime.now().minusDays(1))
                 .end(LocalDateTime.of(2024, 7, 9, 13, 56))
                 .item(item)
                 .booker(user)
@@ -222,20 +208,17 @@ class ItemServiceImplTest {
     }
 
     @Test
-    void getByOwnerIdService() {
+    void searchByParamServiceTest() {
+        when(itemRepoJpa.searchByParam("щётка"))
+                .thenReturn(List.of(item));
+        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
+
+        assertEquals(List.of(itemDTO1), itemService.searchByParamService("ЩёТка"));
 
     }
 
     @Test
-    void getByBookerIdService() {
-    }
-
-    @Test
-    void searchByParamService() {
-    }
-
-    @Test
-    void addComment() {
+    void addCommentTest() {
         booking.setBooker(user);
         item.setBookings(Collections.singletonList(booking));
         when(userRepoJpa.findById(1))
@@ -243,7 +226,7 @@ class ItemServiceImplTest {
         when(itemRepoJpa.findById(1))
                 .thenReturn(Optional.ofNullable(item));
 
-       when(commentRepoJpa.save( any()))
+        when(commentRepoJpa.save(any()))
                 .thenReturn(comment);
         CommentDto commentDto = mapper.map(comment, CommentDto.class);
         CommentDto commentDto1 = itemService.addComment(1, 1, commentDto);
@@ -251,4 +234,32 @@ class ItemServiceImplTest {
 
         assertEquals(commentDto1, commentDto);
     }
+
+    @Test
+    void addCommentFromWrongItemTest() {
+
+        CommentDto commentDto = mapper.map(comment, CommentDto.class);
+
+        var exception = assertThrows(
+                NotFoundException.class,
+                () -> itemService.addComment(1, 1, commentDto));
+
+        assertEquals("404 NOT_FOUND \"комментарий  к вещи с id = '1' пользователем с id = 1 ; нет информации о пользователе.\"", exception.getMessage());
+
+    }
+
+    @Test
+    void addEmptyCommentTest() {
+
+        CommentDto commentDto = mapper.map(comment, CommentDto.class);
+        commentDto.setContent("");
+
+        var exception = assertThrows(
+                BadRequestException.class,
+                () -> itemService.addComment(1, 1, commentDto));
+
+        assertEquals("400 BAD_REQUEST \"Комментарий не должен быть пустым\"", exception.getMessage());
+
+    }
+
 }

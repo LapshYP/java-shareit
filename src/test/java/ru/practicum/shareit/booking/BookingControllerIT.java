@@ -13,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingForResponse;
-import ru.practicum.shareit.booking.dto.BookingLastNextItemDto;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.dto.ItemDTO;
@@ -48,7 +47,7 @@ class BookingControllerIT {
     private UserDTO userDTO;
     private User user;
     private ItemDTO itemDTO;
-    private BookingLastNextItemDto bookingLastNextItemDto;
+
     private BookingForResponse bookingForResponse;
 
     @BeforeEach
@@ -91,13 +90,6 @@ class BookingControllerIT {
                 .status(Status.WAITING)
                 .build();
 
-        bookingLastNextItemDto = new BookingLastNextItemDto().builder()
-                .id(1)
-                .startTime(LocalDateTime.of(2023, 7, 9, 13, 56))
-                .endTime(LocalDateTime.of(2024, 7, 9, 13, 56))
-                .bookerId(1)
-                .status(Status.WAITING)
-                .build();
 
     }
 
@@ -107,7 +99,7 @@ class BookingControllerIT {
 
     @SneakyThrows
     @Test
-    void makeBooking() {
+    void makeBookingTest() {
         when(bookingService.makeBookingService(any(), anyInt()))
                 .thenReturn(bookingForResponse);
 
@@ -129,7 +121,7 @@ class BookingControllerIT {
 
     @SneakyThrows
     @Test
-    void setApproveByOwnerCurrent() {
+    void setApproveByOwnerCurrentTest() {
         when(bookingService.updateBooking(anyInt(), anyInt(), anyBoolean()))
                 .thenReturn(bookingForResponse);
 
@@ -152,7 +144,7 @@ class BookingControllerIT {
 
     @SneakyThrows
     @Test
-    void getByBooker() {
+    void getByBookerTest() {
 
         when(bookingService.getByBookerService(anyInt(), anyInt()))
                 .thenReturn(bookingForResponse);
@@ -174,7 +166,7 @@ class BookingControllerIT {
 
     @SneakyThrows
     @Test
-    void getAllForUser() {
+    void getAllForUserTest() {
 
         when(bookingService.getAllForBookerService(anyString(), anyInt(), anyInt(), anyInt()))
                 .thenReturn(List.of(bookingForResponse));
@@ -195,7 +187,7 @@ class BookingControllerIT {
 
     @SneakyThrows
     @Test
-    void getAllForOwner() {
+    void getAllForOwnerTest() {
 
         when(bookingService.getAllForOwnerService(anyString(), anyInt(), anyInt(), anyInt()))
                 .thenReturn(List.of(bookingForResponse));

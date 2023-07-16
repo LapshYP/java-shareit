@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-;
-
 @Service
 
 @RequiredArgsConstructor
@@ -253,7 +251,6 @@ public class ItemServiceImpl implements ItemService {
             return new ArrayList<>();
         } else {
             log.debug("Вещь по запросу {} найдена", text);
-            // itemRepoJpa.searchByParam(text);
             return itemRepoJpa.searchByParam(textToLowerCase)
                     .stream()
                     .map(item -> {
