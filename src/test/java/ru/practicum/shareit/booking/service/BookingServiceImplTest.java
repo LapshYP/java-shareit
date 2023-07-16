@@ -164,7 +164,7 @@ class BookingServiceImplTest {
         var exception = assertThrows(
                 BadRequestException.class,
                 () -> bookingService.makeBookingService(bookingDto1, 1));
-        assertEquals("404 NOT_FOUND \"Ошибка времени создания букинга(start после end или start = end\"",
+        assertEquals("404 NOT_FOUND \"Ошибка времени создания букинга\"",
                 exception.getMessage());
     }
 
@@ -177,7 +177,7 @@ class BookingServiceImplTest {
         var exception = assertThrows(
                 BadRequestException.class,
                 () -> bookingService.makeBookingService(bookingDto2, 1));
-        assertEquals("404 NOT_FOUND \"Ошибка времени создания букинга(start после end или start = end\"",
+        assertEquals("404 NOT_FOUND \"Ошибка времени создания букинга\"",
                 exception.getMessage());
     }
 

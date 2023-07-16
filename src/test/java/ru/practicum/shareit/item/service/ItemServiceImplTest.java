@@ -121,7 +121,7 @@ class ItemServiceImplTest {
                 ConstraintViolationException.class,
                 () -> itemService.createService(itemDTO1, 999));
 
-        assertEquals("name: не должно быть пустым", exception.getMessage());
+        assertEquals("name: must not be blank", exception.getMessage());
     }
 
     @Test
@@ -132,7 +132,7 @@ class ItemServiceImplTest {
                 ConstraintViolationException.class,
                 () -> itemService.createService(itemDTO1, 999));
 
-        assertEquals("description: не должно быть пустым", exception.getMessage());
+        assertEquals("description: must not be blank", exception.getMessage());
     }
 
     @Test
@@ -143,7 +143,7 @@ class ItemServiceImplTest {
                 ConstraintViolationException.class,
                 () -> itemService.createService(itemDTO1, 999));
 
-        assertEquals("available: не должно равняться null", exception.getMessage());
+        assertEquals("available: must not be null", exception.getMessage());
     }
 
     @Test

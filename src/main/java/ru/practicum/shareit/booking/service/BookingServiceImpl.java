@@ -64,12 +64,12 @@ public class BookingServiceImpl implements BookingService {
         if (bookingDto.getStart().isAfter(bookingDto.getEnd()) ||
                 bookingDto.getStart().isEqual(bookingDto.getEnd())
         ) {
-            throw new BadRequestException(HttpStatus.NOT_FOUND, "Ошибка времени создания букинга(start после end или start = end");
+            throw new BadRequestException(HttpStatus.NOT_FOUND, "Ошибка времени создания букинга");
         }
 
         if (bookingDto.getStart().isBefore(LocalDateTime.now())
         ) {
-            throw new BadRequestException(HttpStatus.NOT_FOUND, "Ошибка времени создания букинга(start в прошлом)");
+            throw new BadRequestException(HttpStatus.NOT_FOUND, "Ошибка времени создания букинга)");
         }
         if (item.getAvailable() == false) {
             throw new BadRequestException(HttpStatus.NOT_FOUND, "вещь не доступна");

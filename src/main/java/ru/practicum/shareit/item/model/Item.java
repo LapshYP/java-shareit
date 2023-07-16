@@ -25,13 +25,13 @@ public class Item {
     @Column
     int id;
     @Column
-    @NotBlank
+    @NotBlank(message = "must not be blank")
     String name;
     @Column
-    @NotBlank
+    @NotBlank(message = "must not be blank")
     String description;
     @Column
-    @NotNull
+    @NotNull( message = "must not be null")
     Boolean available;
 
     @Column
