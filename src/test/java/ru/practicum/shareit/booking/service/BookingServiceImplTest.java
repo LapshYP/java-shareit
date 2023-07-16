@@ -284,6 +284,20 @@ class BookingServiceImplTest {
 
         assertEquals(expectedResult, bookingService.getAllForBookerService("ALL", 1, 0, 20));
     }
+    @Test
+    void getCURRENTForBookerServiceTest() {
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(bookingRepoJpa.findAllByBookerOrderByStartDesc(any(), any()))
+                .thenReturn(Collections.singletonList(booking));
+
+        List<BookingForResponse> expectedResult = List.of(mapper.map(booking, BookingForResponse.class));
+
+        assertEquals(expectedResult, bookingService.getAllForBookerService("CURRENT", 1, 0, 20));
+    }
 
     @Test
     void getAllForOwnerServiceTest() {

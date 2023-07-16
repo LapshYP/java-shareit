@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import ru.practicum.shareit.booking.dto.BookingLastNextItemDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repossitory.BookingRepoJpa;
@@ -17,6 +18,7 @@ import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.comment.CommentRepoJpa;
 import ru.practicum.shareit.item.dto.ItemDTO;
+import ru.practicum.shareit.item.dto.ItemLastNextDTO;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepoJpa;
 import ru.practicum.shareit.user.model.User;
@@ -24,6 +26,7 @@ import ru.practicum.shareit.user.repository.UserRepoJpa;
 
 import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +56,7 @@ class ItemServiceImplTest {
 
     private Comment comment;
     private Booking booking;
+    private Booking booking2;
     private Item item;
 
     @BeforeEach
@@ -72,6 +76,7 @@ class ItemServiceImplTest {
                 .available(true)
                 .request(1)
                 .owner(user)
+                .comments(new ArrayList<>())
                 .build();
         comment = new Comment().builder()
                 .id(1L)
@@ -84,6 +89,14 @@ class ItemServiceImplTest {
         booking = new Booking().builder()
                 .id(1)
                 .start(LocalDateTime.now().minusDays(1))
+                .end(LocalDateTime.of(2024, 7, 9, 13, 56))
+                .item(item)
+                .booker(user)
+                .status(Status.WAITING)
+                .build();
+        booking2 = new Booking().builder()
+                .id(2)
+                .start(LocalDateTime.now().minusDays(2))
                 .end(LocalDateTime.of(2024, 7, 9, 13, 56))
                 .item(item)
                 .booker(user)
@@ -111,6 +124,63 @@ class ItemServiceImplTest {
 
         assertEquals(itemDTO1.getName(), itemService.createService(itemDTO1, user.getId()).getName());
 
+    }
+
+    @Test
+    void getByOwnerIdService() {
+        when(itemRepoJpa.findById(any()))
+                .thenReturn(Optional.ofNullable(item));
+
+        when(userRepoJpa.findById(any()))
+                .thenReturn(Optional.ofNullable(user));
+
+        ItemLastNextDTO itemDTO1 = mapper.map(item, ItemLastNextDTO.class);
+
+        ItemLastNextDTO byOwnerIdService = itemService.getByOwnerIdService(1, 1);
+        assertEquals(itemDTO1, byOwnerIdService);
+    }
+
+    @Test
+    void getByOwnerIdServiceBadItem() {
+
+        var exception = assertThrows(
+                NotFoundException.class,
+                () -> itemService.getByOwnerIdService(1, 1));
+
+        assertEquals("404 NOT_FOUND \"Вещь с id  = '1 нет в базе данных\"", exception.getMessage());
+    }
+
+    @Test
+    void getByBookerIdService() {
+
+        item.setBookings(List.of(booking, booking2));
+
+        when(itemRepoJpa.findAllByOwnerOrderById(any()))
+                .thenReturn(List.of(item));
+
+        when(userRepoJpa.findById(any()))
+                .thenReturn(Optional.ofNullable(user));
+
+        ItemLastNextDTO itemDTO1 = mapper.map(item, ItemLastNextDTO.class);
+        itemDTO1.setOwnerId(1);
+        BookingLastNextItemDto bookingLastNextItemDto = mapper.map(booking, BookingLastNextItemDto.class);
+        itemDTO1.setLastBooking(bookingLastNextItemDto);
+
+        List<ItemLastNextDTO> byBookerIdService = itemService.getByBookerIdService(1);
+        assertEquals(List.of(itemDTO1), byBookerIdService);
+    }
+
+    @Test
+    void getByBookerIdServiceBadUserTest() {
+
+        when(userRepoJpa.findById(77))
+                .thenThrow(new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id=77 не найден"));
+        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
+        var exception = assertThrows(
+                NotFoundException.class,
+                () -> itemService.getByBookerIdService(77));
+
+        assertEquals("404 NOT_FOUND \"Пользователь с id=77 не найден\"", exception.getMessage());
     }
 
     @Test

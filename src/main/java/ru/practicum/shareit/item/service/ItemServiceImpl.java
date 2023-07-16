@@ -101,90 +101,216 @@ public class ItemServiceImpl implements ItemService {
         return updatedItemDTO;
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public ItemLastNextDTO getByOwnerIdService(int itemId, int userId) {
+//    @Override
+//    @Transactional(readOnly = true)
+//    public ItemLastNextDTO getByOwnerIdService(int itemId, int userId) {
+//
+//        Item item = itemRepoJpa.findById(itemId)
+//                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь с id  = '" + itemId + " нет в базе данных"));
+//
+//        User owner = userRepoJpa.findById(userId)
+//                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
+//
+//        ItemLastNextDTO itemLastNextDTO = getItemLastNextDTO(itemId, userId, item);
+//        return itemLastNextDTO;
+//    }
+//
+//    private ItemLastNextDTO getItemLastNextDTO(int itemId, int userId, Item item) {
+//        List<Booking> allBookings = item.getBookings();
+//
+//        Booking lastBooking = null;
+//        Booking nextBooking = null;
+//        LocalDateTime now = LocalDateTime.now();
+//
+//        int ownerId = item.getOwner().getId();
+//        if (ownerId == userId && allBookings != null) {
+//
+//            int sizeLast = allBookings
+//                    .stream()
+//                    .filter(booking -> now.isAfter(booking.getStart()))
+//                    .collect(Collectors.toList()).size();
+//            if (sizeLast != 0) {
+//                lastBooking = allBookings
+//                        .stream()
+//                        .sorted(Comparator.comparing(Booking::getStart).reversed())
+//                        .filter(booking -> now.isAfter(booking.getStart()))
+//                        .collect(Collectors.toList()).get(0);
+//            }
+//
+//            int sizeNext = allBookings
+//                    .stream()
+//                    .filter(booking -> now.isBefore(booking.getStart()))
+//                    .collect(Collectors.toList()).size();
+//            if (sizeNext != 0) {
+//                nextBooking = allBookings
+//                        .stream()
+//                        .sorted(Comparator.comparing(Booking::getStart))
+//                        .filter(booking -> now.isBefore(booking.getStart()))
+//                        .collect(Collectors.toList()).get(0);
+//            }
+//        }
+//        ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
+//        if (lastBooking != null && lastBooking.getStatus() != Status.REJECTED) {
+//            itemLastNextDTO.setLastBooking(mapper.map(lastBooking, BookingLastNextItemDto.class));
+//        } else itemLastNextDTO.setLastBooking(null);
+//
+//        if (nextBooking != null && nextBooking.getStatus() != Status.REJECTED) {
+//            itemLastNextDTO.setNextBooking(mapper.map(nextBooking, BookingLastNextItemDto.class));
+//        } else itemLastNextDTO.setNextBooking(null);
+//
+//
+//        List<Comment> comments = item.getComments();
+//        List<CommentDto> commentDtoForResponse = comments
+//                .stream()
+//                .map(comment -> {
+//                    return mapper.map(comment, CommentDto.class);
+//                })
+//                .collect(Collectors.toList());
+//        itemLastNextDTO.setComments(commentDtoForResponse);
+//
+//        log.debug("Вещь с id = {} созданная {} просмотрена", itemId, userId);
+//        return itemLastNextDTO;
+//    }
+@Override
+@Transactional(readOnly = true)
+public ItemLastNextDTO getByOwnerIdService(int itemId, int userId) {
 
-        Item item = itemRepoJpa.findById(itemId)
-                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь с id  = '" + itemId + " нет в базе данных"));
+    Item item = itemRepoJpa.findById(itemId)
+            .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь с id  = '" + itemId + " нет в базе данных"));
 
-        User owner = userRepoJpa.findById(userId)
-                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
+    User owner = userRepoJpa.findById(userId)
+            .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
 
-        ItemLastNextDTO itemLastNextDTO = getItemLastNextDTO(itemId, userId, item);
-        return itemLastNextDTO;
-    }
+    List<Booking> allBookings = item.getBookings();
 
-    private ItemLastNextDTO getItemLastNextDTO(int itemId, int userId, Item item) {
-        List<Booking> allBookings = item.getBookings();
+    Booking lastBooking = null;
+    Booking nextBooking = null;
+    LocalDateTime now = LocalDateTime.now();
 
-        Booking lastBooking = null;
-        Booking nextBooking = null;
-        LocalDateTime now = LocalDateTime.now();
+    int ownerId = item.getOwner().getId();
+    if (ownerId == userId && allBookings != null) {
 
-        int ownerId = item.getOwner().getId();
-        if (ownerId == userId && allBookings != null) {
-
-            int sizeLast = allBookings
-                    .stream()
-                    .filter(booking -> now.isAfter(booking.getStart()))
-                    .collect(Collectors.toList()).size();
-            if (sizeLast != 0) {
-                lastBooking = allBookings
-                        .stream()
-                        .sorted(Comparator.comparing(Booking::getStart).reversed())
-                        .filter(booking -> now.isAfter(booking.getStart()))
-                        .collect(Collectors.toList()).get(0);
-            }
-
-            int sizeNext = allBookings
-                    .stream()
-                    .filter(booking -> now.isBefore(booking.getStart()))
-                    .collect(Collectors.toList()).size();
-            if (sizeNext != 0) {
-                nextBooking = allBookings
-                        .stream()
-                        .sorted(Comparator.comparing(Booking::getStart))
-                        .filter(booking -> now.isBefore(booking.getStart()))
-                        .collect(Collectors.toList()).get(0);
-            }
-        }
-        ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
-        if (lastBooking != null && lastBooking.getStatus() != Status.REJECTED) {
-            itemLastNextDTO.setLastBooking(mapper.map(lastBooking, BookingLastNextItemDto.class));
-        } else itemLastNextDTO.setLastBooking(null);
-
-        if (nextBooking != null && nextBooking.getStatus() != Status.REJECTED) {
-            itemLastNextDTO.setNextBooking(mapper.map(nextBooking, BookingLastNextItemDto.class));
-        } else itemLastNextDTO.setNextBooking(null);
-
-
-        List<Comment> comments = item.getComments();
-        List<CommentDto> commentDtoForResponse = comments
+        int sizeLast = allBookings
                 .stream()
-                .map(comment -> {
-                    return mapper.map(comment, CommentDto.class);
-                })
-                .collect(Collectors.toList());
-        itemLastNextDTO.setComments(commentDtoForResponse);
+                .filter(booking -> now.isAfter(booking.getStart()))
+                .collect(Collectors.toList()).size();
+        if (sizeLast != 0) {
+            lastBooking = allBookings
+                    .stream()
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .filter(booking -> now.isAfter(booking.getStart()))
+                    .collect(Collectors.toList()).get(0);
+        }
 
-        log.debug("Вещь с id = {} созданная {} просмотрена", itemId, userId);
-        return itemLastNextDTO;
+        int sizeNext = allBookings
+                .stream()
+                .filter(booking -> now.isBefore(booking.getStart()))
+                .collect(Collectors.toList()).size();
+        if (sizeNext != 0) {
+            nextBooking = allBookings
+                    .stream()
+                    .sorted(Comparator.comparing(Booking::getStart))
+                    .filter(booking -> now.isBefore(booking.getStart()))
+                    .collect(Collectors.toList()).get(0);
+        }
     }
+    ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
+    if (lastBooking != null && lastBooking.getStatus() != Status.REJECTED) {
+        itemLastNextDTO.setLastBooking(mapper.map(lastBooking, BookingLastNextItemDto.class));
+    } else itemLastNextDTO.setLastBooking(null);
 
+    if (nextBooking != null && nextBooking.getStatus() != Status.REJECTED) {
+        itemLastNextDTO.setNextBooking(mapper.map(nextBooking, BookingLastNextItemDto.class));
+    } else itemLastNextDTO.setNextBooking(null);
+
+
+    List<Comment> comments = item.getComments();
+    List<CommentDto> commentDtoForResponse = comments
+            .stream()
+            .map(comment -> {
+                return mapper.map(comment, CommentDto.class);
+            })
+            .collect(Collectors.toList());
+    itemLastNextDTO.setComments(commentDtoForResponse);
+
+    log.debug("Вещь с id = {} созданная {} просмотрена", itemId, userId);
+    return itemLastNextDTO;
+}
+//    @Override
+//    @Transactional(readOnly = true)
+//    public List<ItemLastNextDTO> getByBookerIdService(int userId) {
+//        log.debug("Список всех вещей просмотрен");
+//        User booker = userRepoJpa.findById(userId).orElseThrow(() ->
+//                new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
+//        List<ItemLastNextDTO> itemLastNextDTOList = new ArrayList<>();
+//        return  extracted(booker, itemLastNextDTOList);
+//
+//    }
+//
+//    private List<ItemLastNextDTO> extracted(User booker, List<ItemLastNextDTO> itemLastNextDTOList) {
+//        List<Item> items = itemRepoJpa.findAllByOwnerOrderById(booker);
+//        LocalDateTime now = LocalDateTime.now();
+//        for (Item item : items) {
+//            ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
+//            List<Booking> allBookings = item.getBookings();
+//            allBookings.sort(Comparator.comparing(Booking::getStart));
+//
+//            Booking lastBooking = null;
+//
+//            int sizeLast = allBookings.stream()
+//                    .filter(booking -> now.isAfter(booking.getStart()))
+//                    .collect(Collectors.toList()).size();
+//            if (sizeLast != 0) {
+//                lastBooking = allBookings.stream()
+//                        .filter(booking -> now.isAfter(booking.getStart())
+//                                //     && booking.getBooker().getId() == userId
+//                        )
+//                        .collect(Collectors.toList()).get(0);
+//            }
+//
+//            Booking nextBooking = null;
+//            int sizeNext = allBookings
+//                    .stream()
+//                    .filter(booking -> now.isBefore(booking.getStart()))
+//                    .collect(Collectors.toList()).size();
+//            if (sizeNext != 0) {
+//                nextBooking = allBookings
+//                        .stream()
+//                        .filter(booking -> now.isBefore(booking.getStart()))
+//                        .collect(Collectors.toList()).get(0);
+//            }
+//
+//            if (lastBooking != null) {
+//                itemLastNextDTO.setLastBooking(mapper.map(lastBooking, BookingLastNextItemDto.class));
+//            } else itemLastNextDTO.setLastBooking(null);
+//            // itemLastNextDTO.setNextBooking(bookingMapper.bookingToBookingLastNextItemDto(nextBooking));
+//            if (nextBooking != null) {
+//                itemLastNextDTO.setNextBooking(mapper.map(nextBooking, BookingLastNextItemDto.class));
+//            } else itemLastNextDTO.setNextBooking(null);
+//
+//
+//            List<Comment> comments = commentRepoJpa.findAllByItemOrderById(item);
+//            List<CommentDto> commentDtos = comments.stream()
+//                    .map(comment -> {
+//                        return mapper.map(comment, CommentDto.class);
+//                    })
+//                    .collect(Collectors.toList());
+//            itemLastNextDTO.setComments(commentDtos);
+//
+//            itemLastNextDTOList.add(itemLastNextDTO);
+//        }
+//        return itemLastNextDTOList;
+//    }
     @Override
     @Transactional(readOnly = true)
     public List<ItemLastNextDTO> getByBookerIdService(int userId) {
         log.debug("Список всех вещей просмотрен");
         User booker = userRepoJpa.findById(userId).orElseThrow(() ->
                 new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
-        List<ItemLastNextDTO> itemLastNextDTOList = new ArrayList<>();
-        return  extracted(booker, itemLastNextDTOList);
 
-    }
-
-    private List<ItemLastNextDTO> extracted(User booker, List<ItemLastNextDTO> itemLastNextDTOList) {
         List<Item> items = itemRepoJpa.findAllByOwnerOrderById(booker);
+
+        List<ItemLastNextDTO> itemLastNextDTOList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         for (Item item : items) {
             ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
@@ -233,11 +359,14 @@ public class ItemServiceImpl implements ItemService {
                     .collect(Collectors.toList());
             itemLastNextDTO.setComments(commentDtos);
 
-            itemLastNextDTOList.add(itemLastNextDTO);
-        }
-        return itemLastNextDTOList;
-    }
+    itemLastNextDTOList.add(itemLastNextDTO);
 
+
+        }
+
+        return itemLastNextDTOList;
+
+    }
     @Override
     @Transactional(readOnly = true)
     public List<ItemDTO> searchByParamService(String text) {

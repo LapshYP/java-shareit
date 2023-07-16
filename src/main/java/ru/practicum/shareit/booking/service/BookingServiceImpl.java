@@ -157,23 +157,23 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case FUTURE:
                 bookingList = bookingRepoJpa.findAllByBookerAndStartIsAfterOrderByStartDesc(
-                        booker, LocalDateTime.now());
+                        booker, LocalDateTime.now(), paging);
                 break;
             case WAITING:
                 bookingList = bookingRepoJpa.findAllByBookerAndStatusEqualsOrderByStartDesc(
-                        booker, Status.WAITING);
+                        booker, Status.WAITING, paging);
                 break;
             case REJECTED:
                 bookingList = bookingRepoJpa.findAllByBookerAndStatusEqualsOrderByStartDesc(
-                        booker, Status.REJECTED);
+                        booker, Status.REJECTED, paging);
                 break;
             case CURRENT:
                 bookingList = bookingRepoJpa.findAllBookingsForBookerWithStartAndEnd(
-                        booker, LocalDateTime.now(), LocalDateTime.now());
+                        booker, LocalDateTime.now(), LocalDateTime.now(), paging);
                 break;
             case PAST:
                 bookingList = bookingRepoJpa.findAllByBookerAndEndIsBeforeOrderByStartDesc(
-                        booker, LocalDateTime.now());
+                        booker, LocalDateTime.now(), paging);
                 break;
             case UNKNOWN:
                 throw new UnsupportedStatusException("Unknown bookingState: UNSUPPORTED_STATUS");
@@ -220,23 +220,23 @@ public class BookingServiceImpl implements BookingService {
                 break;
             case FUTURE:
                 bookingListResult = bookingRepoJpa.findAllByOwnerAndStartIsAfterOrderByStartDesc(
-                        owner.getId(), LocalDateTime.now());
+                        owner.getId(), LocalDateTime.now(), paging);
                 break;
             case WAITING:
                 bookingListResult = bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(
-                        owner.getId(), Status.WAITING);
+                        owner.getId(), Status.WAITING, paging);
                 break;
             case REJECTED:
                 bookingListResult = bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(
-                        owner.getId(), Status.REJECTED);
+                        owner.getId(), Status.REJECTED, paging);
                 break;
             case CURRENT:
                 bookingListResult = bookingRepoJpa.findAllBookingsForOwnerWithStartAndEnd(
-                        owner, LocalDateTime.now(), LocalDateTime.now());
+                        owner, LocalDateTime.now(), LocalDateTime.now(), paging);
                 break;
             case PAST:
                 bookingListResult = bookingRepoJpa.findAllByOwnerAndEndIsBeforeOrderByStartDesc(
-                        owner, LocalDateTime.now());
+                        owner, LocalDateTime.now(), paging);
                 break;
             case UNKNOWN:
                 throw new UnsupportedStatusException("Unknown bookingState: UNSUPPORTED_STATUS");

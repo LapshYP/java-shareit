@@ -22,8 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -88,7 +87,10 @@ class UserServiceTest {
         when(userRepoJpa.save(any()))
                 .thenReturn(user);
         UserDTO userDTO = mapper.map(user, UserDTO.class);
-        assertEquals(userDTO.getEmail(), userService.createUserSerivce(userDTO).getEmail());
+        UserDTO userSavedDto = userService.createUserSerivce(userDTO);
+
+        assertNotNull(userSavedDto);
+        assertEquals(user.getId(), userSavedDto.getId());
     }
 
     @Test

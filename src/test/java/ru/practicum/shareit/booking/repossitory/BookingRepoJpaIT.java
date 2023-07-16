@@ -136,7 +136,7 @@ class BookingRepoJpaIT {
     @Transactional
     void findAllByBookerAndStartIsAfterOrderByStartDescTest() {
         User booker = userRepoJpa.findById(booker2.getId()).get();
-        List<Booking> bookingList = bookingRepoJpa.findAllByBookerAndStartIsAfterOrderByStartDesc(booker, LocalDateTime.now());
+        List<Booking> bookingList = bookingRepoJpa.findAllByBookerAndStartIsAfterOrderByStartDesc(booker, LocalDateTime.now(), paging);
 
         assertEquals(bookingList.get(0).getId(), booking2.getId());
         assertEquals(bookingList.get(0).getStart(), LocalDateTime.of(2024, 7, 9, 13, 56));
@@ -158,7 +158,7 @@ class BookingRepoJpaIT {
     @Test
     @Transactional
     void findAllByOwnerAndStartIsAfterOrderByStartDescTest() {
-        List<Booking> bookingList = bookingRepoJpa.findAllByOwnerAndStartIsAfterOrderByStartDesc(booker2.getId(), LocalDateTime.now());
+        List<Booking> bookingList = bookingRepoJpa.findAllByOwnerAndStartIsAfterOrderByStartDesc(booker2.getId(), LocalDateTime.now(), paging);
 
         assertEquals(bookingList.get(0).getId(), booking2.getId());
         assertEquals(bookingList.get(0).getBooker().getName(), "Petr");
@@ -173,7 +173,7 @@ class BookingRepoJpaIT {
 
         LocalDateTime localDateTime = LocalDateTime.now();
         List<Booking> bookingList = bookingRepoJpa.findAllBookingsForBookerWithStartAndEnd(
-                booker1, localDateTime, localDateTime);
+                booker1, localDateTime, localDateTime, paging);
 
 
         assertEquals(bookingList.get(0).getId(), booking1.getId());
@@ -187,7 +187,7 @@ class BookingRepoJpaIT {
     void findAllByBookerAndStatusEqualsOrderByStartDescTest() {
 
         List<Booking> bookingList = bookingRepoJpa
-                .findAllByBookerAndStatusEqualsOrderByStartDesc(booker1, Status.APPROVED);
+                .findAllByBookerAndStatusEqualsOrderByStartDesc(booker1, Status.APPROVED, paging);
 
 
         assertEquals(bookingList.get(0).getId(), booking1.getId());
@@ -200,7 +200,7 @@ class BookingRepoJpaIT {
     @Transactional
     void findAllByOwnerAndStatusEqualsOrderByStartDescTest() {
 
-        List<Booking> bookingList = bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(booker2.getId(), Status.WAITING);
+        List<Booking> bookingList = bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(booker2.getId(), Status.WAITING, paging);
 
 
         assertEquals(bookingList.get(0).getId(), booking3.getId());
@@ -214,7 +214,7 @@ class BookingRepoJpaIT {
     void findAllBookingsForOwnerWithStartAndEndTest() {
         User owener = booker2;
         LocalDateTime localDateTime = LocalDateTime.now();
-        List<Booking> bookingList = bookingRepoJpa.findAllBookingsForOwnerWithStartAndEnd(owener, localDateTime, localDateTime);
+        List<Booking> bookingList = bookingRepoJpa.findAllBookingsForOwnerWithStartAndEnd(owener, localDateTime, localDateTime, paging);
 
         assertEquals(bookingList.get(0).getId(), booking3.getId());
         assertEquals(bookingList.get(0).getBooker().getName(), "Petr");
@@ -227,7 +227,7 @@ class BookingRepoJpaIT {
     void findAllByOwnerAndEndIsBeforeOrderByStartDescTest() {
         User owener = booker2;
         LocalDateTime localDateTime = LocalDateTime.now();
-        List<Booking> bookingList = bookingRepoJpa.findAllByOwnerAndEndIsBeforeOrderByStartDesc(owener, localDateTime);
+        List<Booking> bookingList = bookingRepoJpa.findAllByOwnerAndEndIsBeforeOrderByStartDesc(owener, localDateTime, paging);
 
 
         assertEquals(bookingList.get(0).getId(), booking4.getId());
@@ -242,7 +242,7 @@ class BookingRepoJpaIT {
     void findAllByBookerAndEndIsBeforeOrderByStartDescTest() {
 
         List<Booking> bookingList = bookingRepoJpa
-                .findAllByBookerAndEndIsBeforeOrderByStartDesc(booker1, LocalDateTime.now());
+                .findAllByBookerAndEndIsBeforeOrderByStartDesc(booker1, LocalDateTime.now(), paging);
 
         assertEquals(bookingList.size(), 0);
     }
