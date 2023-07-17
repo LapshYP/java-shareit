@@ -178,10 +178,10 @@ public class ItemServiceImpl implements ItemService {
         for (Item item : items) {
             ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
             List<Booking> allBookings = item.getBookings();
-            //   allBookings.sort(Comparator.comparing(Booking::getStart));
-            allBookings.stream()
-                    .sorted(Comparator.comparing(Booking::getStart))
-                    .collect(Collectors.toList());
+            allBookings.sort(Comparator.comparing(Booking::getStart));
+//            allBookings.stream()
+//                    .sorted(Comparator.comparing(Booking::getStart))
+//                    .collect(Collectors.toList());
             Booking lastBooking = null;
 
             int sizeLast = allBookings.stream()
@@ -190,8 +190,7 @@ public class ItemServiceImpl implements ItemService {
             if (sizeLast != 0) {
                 lastBooking = allBookings.stream()
                         .filter(booking -> now.isAfter(booking.getStart())
-                                //     && booking.getBooker().getId() == userId
-                        )
+                               )
                         .collect(Collectors.toList()).get(0);
             }
 
