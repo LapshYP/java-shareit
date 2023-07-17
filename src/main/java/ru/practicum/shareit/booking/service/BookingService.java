@@ -7,7 +7,6 @@ import ru.practicum.shareit.booking.dto.BookingForResponse;
 import java.util.List;
 
 @Service
-
 public interface BookingService {
 
     BookingForResponse makeBookingService(BookingDto bookingDto, int userId);

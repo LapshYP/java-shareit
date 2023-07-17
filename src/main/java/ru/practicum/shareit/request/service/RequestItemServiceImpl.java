@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDTO;
-import ru.practicum.shareit.item.repository.ItemRepoJpa;
 import ru.practicum.shareit.request.dto.RequestDtoWithRequest;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.model.RequestDto;
@@ -28,29 +27,20 @@ public class RequestItemServiceImpl implements RequestItemService {
     private final RequestItemRepoJpa requestItemRepoJpa;
     private final UserRepoJpa userRepoJpa;
     private final ModelMapper mapper = new ModelMapper();
-    private final ItemRepoJpa itemRepoJpa;
+
 
     @Override
     public RequestDto addItemRequestService(RequestDto itemRequestDto, int userId) {
-//        ModelMapper mapper2 = new ModelMapper();
-//        mapper2.getConfiguration()
-//                .setMatchingStrategy(MatchingStrategies.LOOSE)
-//                .setFieldMatchingEnabled(true)
-//                .setSkipNullEnabled(true)
-//                .setFieldAccessLevel(PRIVATE);
-//
-//        mapper2.getConfiguration().setPreferNestedProperties(false);
 
         User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
         Request request = mapper.map(itemRequestDto, Request.class);
         request.setCreatedtime(LocalDateTime.now());
         request.setRequestor(requestor);
-//        if (request.getItems() == null) {
-//            request.setItems(new ArrayList<>());
-//        }
+
         Request saved = requestItemRepoJpa.save(request);
         RequestDto requestDto = mapper.map(saved, RequestDto.class);
         return requestDto;
+
     }
 
     @Override

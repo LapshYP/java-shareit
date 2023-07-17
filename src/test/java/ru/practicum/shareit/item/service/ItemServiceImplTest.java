@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
@@ -11,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import ru.practicum.shareit.booking.dto.BookingLastNextItemDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
-import ru.practicum.shareit.booking.repossitory.BookingRepoJpa;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.comment.Comment;
@@ -45,13 +45,11 @@ class ItemServiceImplTest {
     private UserRepoJpa userRepoJpa;
 
     @Mock
-    private BookingRepoJpa bookingRepoJpa;
-
-    @Mock
     private CommentRepoJpa commentRepoJpa;
 
     private ModelMapper mapper = new ModelMapper();
-    private ItemService itemService;
+    @InjectMocks
+    private ItemServiceImpl itemService;
     private User user;
 
     private Comment comment;
@@ -103,8 +101,6 @@ class ItemServiceImplTest {
                 .status(Status.WAITING)
                 .build();
 
-        itemService = new ItemServiceImpl(itemRepoJpa, userRepoJpa, commentRepoJpa,
-                bookingRepoJpa);
     }
 
     @AfterEach

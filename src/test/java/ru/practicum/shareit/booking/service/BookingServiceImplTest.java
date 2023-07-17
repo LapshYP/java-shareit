@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
@@ -52,7 +53,8 @@ class BookingServiceImplTest {
     private ItemDTO itemDTO;
     private Item item2;
     private BookingForResponse bookingForResponse;
-    private BookingService bookingService;
+    @InjectMocks
+    private BookingServiceImpl bookingService;
 
     @BeforeEach
     void setUp() {
@@ -132,9 +134,6 @@ class BookingServiceImplTest {
                 .booker(user)
                 .status(Status.WAITING)
                 .build();
-
-        bookingService = new BookingServiceImpl(bookingRepoJpa, itemRepoJpa,
-                userRepoJpa);
     }
 
     @AfterEach

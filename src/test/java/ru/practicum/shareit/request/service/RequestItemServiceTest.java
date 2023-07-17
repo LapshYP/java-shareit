@@ -4,19 +4,17 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.dto.ItemDTO;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepoJpa;
 import ru.practicum.shareit.request.dto.RequestDtoWithRequest;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.model.RequestDto;
 import ru.practicum.shareit.request.repossitory.RequestItemRepoJpa;
-import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
 
@@ -33,8 +31,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RequestItemServiceTest {
-    @Mock
-    private ItemRepoJpa itemRepoJpa;
+
 
     @Mock
     private UserRepoJpa userRepoJpa;
@@ -43,36 +40,23 @@ class RequestItemServiceTest {
     private RequestItemRepoJpa requestItemRepoJpa;
 
     private ModelMapper mapper = new ModelMapper();
-
-    private RequestItemService requestItemService;
+    @InjectMocks
+    private RequestItemServiceImpl requestItemService;
     private User user;
-    private UserDTO userDTO;
-    private ItemDTO itemDTO;
-    private Item item;
+
     private Request request;
 
 
     @BeforeEach
     void setUp() {
-        item = new Item().builder()
-                .id(1)
-                .name("Щётка для обуви")
-                .description("Стандартная щётка для обуви")
-                .available(true)
-                .request(1)
-                .owner(user)
-                .build();
+
 
         user = new User().builder()
                 .id(1)
                 .name("Ivan")
                 .email("ivan@mail.ru")
                 .build();
-        userDTO = new UserDTO().builder()
-                .id(1)
-                .name("Ivan")
-                .email("ivan@mail.ru")
-                .build();
+
         request = new Request().builder()
                 .id(1)
                 .createdtime(LocalDateTime.of(2023, 7, 9, 13, 56))
@@ -81,8 +65,6 @@ class RequestItemServiceTest {
                 .items(new ArrayList<>())
                 .build();
 
-
-        requestItemService = new RequestItemServiceImpl(requestItemRepoJpa, userRepoJpa, itemRepoJpa);
 
     }
 
@@ -124,6 +106,7 @@ class RequestItemServiceTest {
         assertEquals(requestList, List.of(requestDto1));
     }
 
+
     @Test
     void getItemRequestSeriviceWithWrongUserIdTest() {
         when(userRepoJpa.findById(77))
@@ -145,6 +128,16 @@ class RequestItemServiceTest {
         List<RequestDtoWithRequest> requestList = requestItemService.getItemRequestAllSerivice(1, 1, 1);
         RequestDtoWithRequest requestDto1 = mapper.map(request, RequestDtoWithRequest.class);
         assertEquals(requestList, List.of(requestDto1));
+    }
+
+
+    @Test
+    void getItemRequestAllSeriviceWithWrongRequestIdTest() {
+
+        var exception = assertThrows(
+                BadRequestException.class,
+                () -> requestItemService.getItemRequestAllSerivice(1, -1, 1));
+        assertEquals("400 BAD_REQUEST \"не правильный параметр пагинации\"", exception.getMessage());
     }
 
     @Test
@@ -173,7 +166,21 @@ class RequestItemServiceTest {
     }
 
     @Test
-    void getRequestByWrongIdTest() {
+    void getRequestByIdWithWrongRequestIdTest() {
+        when(userRepoJpa.findById(1))
+                .thenReturn(Optional.of(user));
+
+        when(requestItemRepoJpa.findById(66))
+                .thenThrow(new NotFoundException(HttpStatus.NOT_FOUND, "Запрос с id = 66 не найден"));
+
+        var exception = assertThrows(
+                NotFoundException.class,
+                () -> requestItemService.getRequestById(1, 66));
+        assertEquals("404 NOT_FOUND \"Запрос с id = 66 не найден\"", exception.getMessage());
+    }
+
+    @Test
+    void getRequestByWrongUserIdTest() {
         when(userRepoJpa.findById(77))
                 .thenThrow(new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = 77 не найден"));
         var exception = assertThrows(
