@@ -284,6 +284,14 @@ class ItemServiceImplTest {
     }
 
     @Test
+    void searchByParamServiceNullTest() {
+
+
+        assertEquals(List.of(), itemService.searchByParamService("".toLowerCase()));
+        assertEquals(List.of(), itemService.searchByParamService(null));
+    }
+
+    @Test
     void addCommentTest() {
         booking.setBooker(user);
         item.setBookings(Collections.singletonList(booking));
@@ -302,6 +310,21 @@ class ItemServiceImplTest {
     }
 
     @Test
+    void addCommentWrongUserTest() {
+        booking.setBooker(user);
+        item.setBookings(Collections.singletonList(booking));
+
+        CommentDto commentDto = mapper.map(comment, CommentDto.class);
+
+        var exception = assertThrows(
+                NotFoundException.class,
+                () -> itemService.addComment(1, 1, commentDto));
+
+        assertEquals("404 NOT_FOUND \"комментарий  к вещи с id = '1' пользователем с id = 1 ; нет информации о пользователе.\"", exception.getMessage());
+
+    }
+
+    @Test
     void addCommentFromWrongItemTest() {
 
         CommentDto commentDto = mapper.map(comment, CommentDto.class);
@@ -313,6 +336,7 @@ class ItemServiceImplTest {
         assertEquals("404 NOT_FOUND \"комментарий  к вещи с id = '1' пользователем с id = 1 ; нет информации о пользователе.\"", exception.getMessage());
 
     }
+
 
     @Test
     void addEmptyCommentTest() {

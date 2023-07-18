@@ -11,6 +11,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.RequestDtoWithRequest;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.model.RequestDto;
@@ -20,6 +22,7 @@ import ru.practicum.shareit.user.repository.UserRepoJpa;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +46,8 @@ class RequestItemServiceTest {
     @InjectMocks
     private RequestItemServiceImpl requestItemService;
     private User user;
+    private Item item;
+    private Comment comment;
 
     private Request request;
 
@@ -57,15 +62,30 @@ class RequestItemServiceTest {
                 .email("ivan@mail.ru")
                 .build();
 
+        item = new Item().builder()
+                .id(1)
+                .name("Щётка для обуви")
+                .description("Стандартная щётка для обуви")
+                .available(true)
+                .request(1)
+                .owner(user)
+                .comments(new ArrayList<>())
+                .build();
         request = new Request().builder()
                 .id(1)
                 .createdtime(LocalDateTime.of(2023, 7, 9, 13, 56))
                 .description("Хотел бы воспользоваться щёткой для обуви")
                 .requestor(user)
-                .items(new ArrayList<>())
+                .items(Collections.singletonList(item))
                 .build();
 
-
+        comment = new Comment().builder()
+                .id(1L)
+                .content("comment")
+                .item(item)
+                .author(user)
+                .created(LocalDateTime.now())
+                .build();
     }
 
     @AfterEach
@@ -160,6 +180,7 @@ class RequestItemServiceTest {
         when(requestItemRepoJpa.findById(anyInt()))
                 .thenReturn(Optional.ofNullable(request));
         RequestDtoWithRequest requestById = requestItemService.getRequestById(1, 1);
+
         RequestDtoWithRequest requestDto1 = mapper.map(request, RequestDtoWithRequest.class);
 
         assertEquals(requestById, requestDto1);

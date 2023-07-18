@@ -73,7 +73,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDTO updateService(ItemDTO itemDTO, int itemId, int userId) {
-        //   Item item = itemMapper.itemDTOToItem(itemDTO);
         Item item = mapper.map(itemDTO, Item.class);
 
         itemRepoJpa.findById(itemId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь c id = '" + item.getId() + "' не существует"));
@@ -108,15 +107,29 @@ public class ItemServiceImpl implements ItemService {
         User owner = userRepoJpa.findById(userId)
                 .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
 
+        ItemLastNextDTO itemLastNextDTO = getItemLastNextDTO(userId, item);
+
+
+        List<Comment> comments = item.getComments();
+        List<CommentDto> commentDtoForResponse = comments
+                .stream()
+                .map(comment -> {
+                    return mapper.map(comment, CommentDto.class);
+                })
+                .collect(Collectors.toList());
+        itemLastNextDTO.setComments(commentDtoForResponse);
+        log.debug("Вещь с id = {} созданная {} просмотрена", itemId, userId);
+        return itemLastNextDTO;
+    }
+
+    private ItemLastNextDTO getItemLastNextDTO(int userId, Item item) {
         List<Booking> allBookings = item.getBookings();
 
         Booking lastBooking = null;
         Booking nextBooking = null;
         LocalDateTime now = LocalDateTime.now();
-
         int ownerId = item.getOwner().getId();
         if (ownerId == userId && allBookings != null) {
-
             int sizeLast = allBookings
                     .stream()
                     .filter(booking -> now.isAfter(booking.getStart()))
@@ -128,7 +141,6 @@ public class ItemServiceImpl implements ItemService {
                         .filter(booking -> now.isAfter(booking.getStart()))
                         .collect(Collectors.toList()).get(0);
             }
-
             int sizeNext = allBookings
                     .stream()
                     .filter(booking -> now.isBefore(booking.getStart()))
@@ -149,18 +161,6 @@ public class ItemServiceImpl implements ItemService {
         if (nextBooking != null && nextBooking.getStatus() != Status.REJECTED) {
             itemLastNextDTO.setNextBooking(mapper.map(nextBooking, BookingLastNextItemDto.class));
         } else itemLastNextDTO.setNextBooking(null);
-
-
-        List<Comment> comments = item.getComments();
-        List<CommentDto> commentDtoForResponse = comments
-                .stream()
-                .map(comment -> {
-                    return mapper.map(comment, CommentDto.class);
-                })
-                .collect(Collectors.toList());
-        itemLastNextDTO.setComments(commentDtoForResponse);
-
-        log.debug("Вещь с id = {} созданная {} просмотрена", itemId, userId);
         return itemLastNextDTO;
     }
 
@@ -170,10 +170,9 @@ public class ItemServiceImpl implements ItemService {
         log.debug("Список всех вещей просмотрен");
         User booker = userRepoJpa.findById(userId).orElseThrow(() ->
                 new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
-
         List<Item> items = itemRepoJpa.findAllByOwner(booker);
-
         List<ItemLastNextDTO> itemLastNextDTOList = new ArrayList<>();
+
         LocalDateTime now = LocalDateTime.now();
         for (Item item : items) {
             ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
@@ -273,9 +272,8 @@ public class ItemServiceImpl implements ItemService {
         if (bookings
                 .stream()
                 .filter(booking -> (booking.getBooker().getId() == userId)
-//                        && booking.getEnd().isBefore(LocalDateTime.now())
-                                && !booking.getStart().isAfter(LocalDateTime.now())
-                                && !booking.getStatus().equals(Status.REJECTED)
+                        && !booking.getStart().isAfter(LocalDateTime.now())
+                        && !booking.getStatus().equals(Status.REJECTED)
                 )
                 .collect(Collectors.toList()).size() == 0) {
             throw new BadRequestException(HttpStatus.BAD_REQUEST,
