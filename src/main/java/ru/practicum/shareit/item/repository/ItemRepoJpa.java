@@ -12,7 +12,7 @@ import java.util.List;
 public interface ItemRepoJpa extends JpaRepository<Item, Integer> {
 
 
-    List<Item> findAllByOwnerOrderById(User owner);
+    List<Item> findAllByOwner(User owner);
 
     @Query("select it " +
             "from Item as it " +

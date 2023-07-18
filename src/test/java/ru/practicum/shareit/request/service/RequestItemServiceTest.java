@@ -190,4 +190,6 @@ class RequestItemServiceTest {
         assertEquals("404 NOT_FOUND \"Пользователь с id = 77 не найден\"", exception.getMessage());
 
     }
+
+
 }

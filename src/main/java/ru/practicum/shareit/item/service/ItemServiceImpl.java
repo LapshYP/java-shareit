@@ -171,17 +171,14 @@ public class ItemServiceImpl implements ItemService {
         User booker = userRepoJpa.findById(userId).orElseThrow(() ->
                 new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
 
-        List<Item> items = itemRepoJpa.findAllByOwnerOrderById(booker);
+        List<Item> items = itemRepoJpa.findAllByOwner(booker);
 
         List<ItemLastNextDTO> itemLastNextDTOList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         for (Item item : items) {
             ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
             List<Booking> allBookings = item.getBookings();
-            allBookings.sort(Comparator.comparing(Booking::getStart));
-//            allBookings.stream()
-//                    .sorted(Comparator.comparing(Booking::getStart))
-//                    .collect(Collectors.toList());
+
             Booking lastBooking = null;
 
             int sizeLast = allBookings.stream()
@@ -189,9 +186,9 @@ public class ItemServiceImpl implements ItemService {
                     .collect(Collectors.toList()).size();
             if (sizeLast != 0) {
                 lastBooking = allBookings.stream()
-                        .filter(booking -> now.isAfter(booking.getStart())
-                               )
-                        .collect(Collectors.toList()).get(0);
+                        .filter(booking -> now.isAfter(booking.getStart()))
+                        .min((booking1, booking2) -> booking2.getStart().compareTo(booking1.getStart())).orElse(null);
+
             }
 
             Booking nextBooking = null;
@@ -203,13 +200,12 @@ public class ItemServiceImpl implements ItemService {
                 nextBooking = allBookings
                         .stream()
                         .filter(booking -> now.isBefore(booking.getStart()))
-                        .collect(Collectors.toList()).get(0);
+                        .min(Comparator.comparing(Booking::getStart)).orElse(null);
             }
 
             if (lastBooking != null) {
                 itemLastNextDTO.setLastBooking(mapper.map(lastBooking, BookingLastNextItemDto.class));
             } else itemLastNextDTO.setLastBooking(null);
-            // itemLastNextDTO.setNextBooking(bookingMapper.bookingToBookingLastNextItemDto(nextBooking));
             if (nextBooking != null) {
                 itemLastNextDTO.setNextBooking(mapper.map(nextBooking, BookingLastNextItemDto.class));
             } else itemLastNextDTO.setNextBooking(null);

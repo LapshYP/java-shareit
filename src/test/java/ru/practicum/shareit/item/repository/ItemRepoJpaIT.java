@@ -50,7 +50,7 @@ class ItemRepoJpaIT {
     @Test
     void findAllByOwnerOrderByIdTest() {
         User user = userRepoJpa.findById(1).get();
-        List<Item> items = itemRepoJpa.findAllByOwnerOrderById(user);
+        List<Item> items = itemRepoJpa.findAllByOwner(user);
 
         assertEquals(items.get(0).getId(), item.getId());
         assertEquals(items.get(0).getName(), "Щётка для обуви");

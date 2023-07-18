@@ -28,7 +28,6 @@ public class RequestItemServiceImpl implements RequestItemService {
     private final UserRepoJpa userRepoJpa;
     private final ModelMapper mapper = new ModelMapper();
 
-
     @Override
     public RequestDto addItemRequestService(RequestDto itemRequestDto, int userId) {
 
@@ -36,17 +35,14 @@ public class RequestItemServiceImpl implements RequestItemService {
         Request request = mapper.map(itemRequestDto, Request.class);
         request.setCreatedtime(LocalDateTime.now());
         request.setRequestor(requestor);
-
         Request saved = requestItemRepoJpa.save(request);
         RequestDto requestDto = mapper.map(saved, RequestDto.class);
         return requestDto;
-
     }
 
     @Override
     public List<RequestDtoWithRequest> getItemRequestSerivice(int userId) {
-        User requestor = userRepoJpa.findById(userId).orElseThrow(() ->
-                new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
+        User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
         List<RequestDtoWithRequest> requestDtoWithRequests =
                 requestItemRepoJpa.findAllByRequestor_Id(userId).stream()
                         .map(request -> {
@@ -69,7 +65,6 @@ public class RequestItemServiceImpl implements RequestItemService {
         User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
         Pageable pageable = PageRequest.of(from / size, size);
         List<Request> byOwnerId = requestItemRepoJpa.findByOwnerId(userId, pageable);
-
         List<RequestDtoWithRequest> requestDtoWithRequests =
                 byOwnerId.stream()
                         .map(request -> {
@@ -82,21 +77,16 @@ public class RequestItemServiceImpl implements RequestItemService {
             }
         }
         return requestDtoWithRequests;
-
     }
 
     @Override
     public RequestDtoWithRequest getRequestById(int userId, int requestId) {
         User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
-        Request request = requestItemRepoJpa.findById(requestId).orElseThrow(
-                () -> new NotFoundException(HttpStatus.NOT_FOUND, "Запрос вещи по id не найден"));
+        Request request = requestItemRepoJpa.findById(requestId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Запрос вещи по id не найден"));
         RequestDtoWithRequest requestDtoWithRequest = mapper.map(request, RequestDtoWithRequest.class);
         for (ItemDTO item : requestDtoWithRequest.getItems()) {
             item.setRequestId(requestId);
         }
-
         return requestDtoWithRequest;
     }
-
 }
-
