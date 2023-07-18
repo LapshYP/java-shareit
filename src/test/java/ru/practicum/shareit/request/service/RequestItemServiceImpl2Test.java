@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-class RequestItemServiceImplTest2 {
+class RequestItemServiceImpl2Test {
 
     @Mock
     private UserRepoJpa userRepoJpa;

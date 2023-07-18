@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class BookingRepoJpaIT {
+class BookingRepoJpaITest {
     @Autowired
     private BookingRepoJpa bookingRepoJpa;
     @Autowired

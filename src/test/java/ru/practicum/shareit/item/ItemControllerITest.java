@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class ItemControllerIT {
+class ItemControllerITest {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired

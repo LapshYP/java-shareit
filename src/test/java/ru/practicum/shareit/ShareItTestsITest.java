@@ -5,7 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 
 @SpringBootTest
-class ShareItTestsIT {
+class ShareItTestsITest {
 
 	@Test
 	public void main() {
