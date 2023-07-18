@@ -49,4 +49,5 @@ class ItemDTOTest {
 
         assertEquals(item1.hashCode(), item2.hashCode());
     }
+
 }
