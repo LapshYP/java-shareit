@@ -68,4 +68,5 @@ class ItemLastNextDTOTest {
 
         assertEquals(item1.hashCode(), item2.hashCode());
     }
+
 }

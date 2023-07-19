@@ -47,7 +47,7 @@ class ItemRepoJpaITest {
         userRepoJpa.deleteAll();
     }
 
-    //крашится при verify
+    //крашится при verify хотя рабочий
 //    @Test
 //    void findAllByOwnerOrderByIdTest() {
 //        User user = userRepoJpa.findById(1).get();

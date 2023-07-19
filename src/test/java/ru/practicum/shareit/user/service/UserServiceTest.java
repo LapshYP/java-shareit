@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
+import ru.practicum.shareit.exception.DubleException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
@@ -62,6 +63,26 @@ class UserServiceTest {
 
         assertNotNull(userSavedDto);
         assertEquals(user.getId(), userSavedDto.getId());
+    }
+
+    @Test
+    void createUserSerivceWithExceptionTest() {
+
+        UserDTO userDTO = mapper.map(user, UserDTO.class);
+
+        Mockito.when(userRepoJpa.save(any()))
+                .thenReturn(user)
+                .thenThrow(new DubleException("Ошибка при сохранении"));
+
+
+        UserDTO userSavedDto = userService.createUserSerivce(userDTO);
+
+        assertNotNull(userSavedDto);
+
+        assertThrows(
+                DubleException.class,
+                () -> userService.createUserSerivce(userDTO)
+        );
     }
 
     @Test

@@ -122,7 +122,7 @@ public class ItemServiceImpl implements ItemService {
         return itemLastNextDTO;
     }
 
-    private ItemLastNextDTO getItemLastNextDTO(int userId, Item item) {
+    public ItemLastNextDTO getItemLastNextDTO(int userId, Item item) {
         List<Booking> allBookings = item.getBookings();
 
         Booking lastBooking = null;

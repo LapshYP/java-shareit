@@ -26,13 +26,9 @@ import ru.practicum.shareit.user.repository.UserRepoJpa;
 
 import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -352,4 +348,68 @@ class ItemServiceImplTest {
 
     }
 
+    @Test
+    public void testGetItemLastNextDTOWhenUserIsOwnerAndHasBookings() {
+
+        booking.setStart(LocalDateTime.now().minusHours(2));
+        booking2.setStart(LocalDateTime.now().plusHours(2));
+        item.setBookings(Arrays.asList(booking, booking2));
+
+        ItemLastNextDTO result = itemService.getItemLastNextDTO(user.getId(), item);
+
+        assertNotNull(result);
+        assertNotNull(result.getLastBooking());
+        assertNotNull(result.getNextBooking());
+        assertEquals(booking.getId(), result.getLastBooking().getId());
+        assertEquals(booking2.getId(), result.getNextBooking().getId());
+    }
+
+    @Test
+    public void testGetItemLastNextDTOWhenUserIsOwnerAndHasNoBookings() {
+
+        int userId = 1;
+        Item item = new Item();
+        item.setOwner(user);
+        item.setBookings(new ArrayList<>());
+
+        ItemLastNextDTO result = itemService.getItemLastNextDTO(userId, item);
+
+        assertNotNull(result);
+        assertNull(result.getLastBooking());
+        assertNull(result.getNextBooking());
+    }
+
+    @Test
+    public void testGetItemLastNextDTOWhenUserIsNotOwner() {
+        User user2 = new User().builder()
+                .id(2)
+                .build();
+        int userId = 1;
+
+        item.setOwner(user2);
+        Booking booking1 = new Booking();
+        booking1.setStart(LocalDateTime.now().minusHours(2));
+        Booking booking2 = new Booking();
+        booking2.setStart(LocalDateTime.now().plusHours(2));
+        item.setBookings(Arrays.asList(booking1, booking2));
+
+        ItemLastNextDTO result = itemService.getItemLastNextDTO(userId, item);
+
+        assertNotNull(result);
+        assertNull(result.getLastBooking());
+        assertNull(result.getNextBooking());
+    }
+
+    @Test
+    void addCommentWithBlankContentThrowsBadRequestException() {
+
+        int userId = 1;
+        int itemId = 2;
+        CommentDto commentDto = new CommentDto();
+        commentDto.setContent("");
+
+        assertThrows(BadRequestException.class, () -> {
+            itemService.addComment(userId, itemId, commentDto);
+        });
+    }
 }

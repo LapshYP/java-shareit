@@ -49,13 +49,13 @@ public class ExceptionController {
         return Map.of("NotFoundException ", erroMessage);
     }
 
-//    //409
-//    @ExceptionHandler({DubleException.class})
-//    @ResponseStatus(HttpStatus.CONFLICT)
-//    public Map<String, String> dubleException(DubleException ex) {
-//        String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the object already exists";
-//        return Map.of("DubleException ", erroMessage);
-//    }
+    //409
+    @ExceptionHandler({DubleException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> dubleException(DubleException ex) {
+        String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the object already exists";
+        return Map.of("DubleException ", erroMessage);
+    }
 
     //409
     @ExceptionHandler(JdbcSQLIntegrityConstraintViolationException.class)

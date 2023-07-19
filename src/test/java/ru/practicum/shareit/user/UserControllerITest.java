@@ -71,16 +71,17 @@ class UserControllerITest {
                 .andExpect(jsonPath("$.email", is(userDto.getEmail())));
     }
 
+
     @SneakyThrows
     @Test
     void updateUser() {
-        userDto = new UserDTO().builder()
+        UserDTO userDTOUpdated = new UserDTO().builder()
                 .id(1)
                 .name("Ivan2")
                 .email("ivan@mail.ru")
                 .build();
         when(userService.updateUserService(userDto, 1))
-                .thenReturn(userDto);
+                .thenReturn(userDTOUpdated);
 
         String writeValueAsString = objectMapper.writeValueAsString(userDto);
         mockMvc.perform(patch("/users/1")
@@ -88,7 +89,11 @@ class UserControllerITest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(userDTOUpdated.getId()), Integer.class))
+                .andExpect(jsonPath("$.name", is(userDTOUpdated.getName()), String.class))
+                .andExpect(jsonPath("$.email", is(userDTOUpdated.getEmail()), String.class));
+
     }
 
 
