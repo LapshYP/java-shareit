@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -147,7 +147,7 @@ class ItemServiceImplTest {
 
         item.setBookings(List.of(booking, booking2));
 
-        when(itemRepoJpa.findAllByOwner(any()))
+        when(itemRepoJpa.findAllByOwner(any(),any()))
                 .thenReturn(List.of(item));
 
         when(userRepoJpa.findById(any()))
@@ -158,7 +158,7 @@ class ItemServiceImplTest {
         BookingLastNextItemDto bookingLastNextItemDto = mapper.map(booking, BookingLastNextItemDto.class);
         itemDTO1.setLastBooking(bookingLastNextItemDto);
 
-        List<ItemLastNextDTO> byBookerIdService = itemService.getByBookerIdService(1);
+        List<ItemLastNextDTO> byBookerIdService = itemService.getByBookerIdService(1, 0,20);
         assertEquals(List.of(itemDTO1), byBookerIdService);
     }
 
@@ -170,7 +170,7 @@ class ItemServiceImplTest {
         ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
         var exception = assertThrows(
                 NotFoundException.class,
-                () -> itemService.getByBookerIdService(77));
+                () -> itemService.getByBookerIdService(77, 0, 20));
 
         assertEquals("404 NOT_FOUND \"Пользователь с id=77 не найден\"", exception.getMessage());
     }
@@ -271,11 +271,11 @@ class ItemServiceImplTest {
 
     @Test
     void searchByParamServiceTest() {
-        when(itemRepoJpa.searchByParam("щётка"))
+        when(itemRepoJpa.searchByParam(any(),any()))
                 .thenReturn(List.of(item));
         ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
 
-        assertEquals(List.of(itemDTO1), itemService.searchByParamService("ЩёТка"));
+        assertEquals(List.of(itemDTO1), itemService.searchByParamService("ЩёТка", 0, 20));
 
     }
 
@@ -283,8 +283,8 @@ class ItemServiceImplTest {
     void searchByParamServiceNullTest() {
 
 
-        assertEquals(List.of(), itemService.searchByParamService("".toLowerCase()));
-        assertEquals(List.of(), itemService.searchByParamService(null));
+        assertEquals(List.of(), itemService.searchByParamService("".toLowerCase(), 0, 20));
+        assertEquals(List.of(), itemService.searchByParamService(null, 0, 20));
     }
 
     @Test

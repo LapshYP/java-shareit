@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -166,11 +168,16 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemLastNextDTO> getByBookerIdService(int userId) {
+    public List<ItemLastNextDTO> getByBookerIdService(int userId, int from, int size) {
         log.debug("Список всех вещей просмотрен");
         User booker = userRepoJpa.findById(userId).orElseThrow(() ->
                 new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
-        List<Item> items = itemRepoJpa.findAllByOwner(booker);
+
+        if ((from < 0 || size < 0 || (from == 0 && size == 0))) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "не правильный параметр пагинации");
+        }
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Item> items = itemRepoJpa.findAllByOwner(booker, pageable);
         List<ItemLastNextDTO> itemLastNextDTOList = new ArrayList<>();
 
         LocalDateTime now = LocalDateTime.now();
@@ -225,18 +232,24 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemDTO> searchByParamService(String text) {
+    public List<ItemDTO> searchByParamService(String text, int from, int size) {
         if (text == null || text.isEmpty()) {
             log.debug("Запрос не задан");
             return new ArrayList<>();
         }
         String textToLowerCase = text.toLowerCase();
+        if ((from < 0 || size < 0 || (from == 0 && size == 0))) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "не правильный параметр пагинации");
+        }
+        Pageable pageable;
+
         if (text == null || text.isEmpty()) {
             log.debug("Вещь по запросу {} не найдена", text);
             return new ArrayList<>();
         } else {
+            pageable = PageRequest.of(from / size, size);
             log.debug("Вещь по запросу {} найдена", text);
-            return itemRepoJpa.searchByParam(textToLowerCase)
+            return itemRepoJpa.searchByParam(textToLowerCase,pageable)
                     .stream()
                     .map(item -> {
                         return mapper.map(item, ItemDTO.class);

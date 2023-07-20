@@ -66,7 +66,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUserSerivceWithExceptionTest() {
+    void createUserSerivceWithDubleExceptionTest() {
 
         UserDTO userDTO = mapper.map(user, UserDTO.class);
 
@@ -84,6 +84,7 @@ class UserServiceTest {
                 () -> userService.createUserSerivce(userDTO)
         );
     }
+
 
     @Test
     void createUserSerivceWithBadNameTest() {

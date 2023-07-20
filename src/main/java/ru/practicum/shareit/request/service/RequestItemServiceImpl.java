@@ -62,8 +62,8 @@ public class RequestItemServiceImpl implements RequestItemService {
         if ((from < 0 || size < 0 || (from == 0 && size == 0))) {
             throw new BadRequestException(HttpStatus.BAD_REQUEST, "не правильный параметр пагинации");
         }
-        User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
         Pageable pageable = PageRequest.of(from / size, size);
+        User requestor = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Юзер с таким именем не найден в базе данных"));
         List<Request> byOwnerId = requestItemRepoJpa.findByOwnerId(userId, pageable);
         List<RequestDtoWithRequest> requestDtoWithRequests =
                 byOwnerId.stream()

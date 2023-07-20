@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -12,13 +13,13 @@ import java.util.List;
 public interface ItemRepoJpa extends JpaRepository<Item, Integer> {
 
 
-    List<Item> findAllByOwner(User owner);
+    List<Item> findAllByOwner(User owner,Pageable page);
 
     @Query("select it " +
             "from Item as it " +
             "where (lower(it.name) like concat('%', ?1, '%') " +
             "or lower(it.description) like concat('%', ?1, '%')) " +
             "and it.available = true ")
-    List<Item> searchByParam(String text);
+    List<Item> searchByParam(String text,Pageable page);
 
 }

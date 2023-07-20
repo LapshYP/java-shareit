@@ -21,8 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -81,7 +80,7 @@ class ItemControllerITest {
     @SneakyThrows
     @Test
     void searchFilmsTest() {
-        when(itemService.searchByParamService("name"))
+        when(itemService.searchByParamService(anyString(), anyInt(), anyInt()))
                 .thenReturn(List.of(itemDTO));
 
         mockMvc.perform(get("/items/search?text=name")
@@ -117,7 +116,7 @@ class ItemControllerITest {
     void getItemByUserIdTest() {
 
 
-        when(itemService.getByBookerIdService(anyInt()))
+        when(itemService.getByBookerIdService(anyInt(),anyInt(), anyInt()))
                 .thenReturn(List.of(itemLastNextDTO));
 
         mockMvc.perform(get("/items")

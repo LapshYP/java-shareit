@@ -17,9 +17,9 @@ public interface ItemService {
 
     ItemLastNextDTO getByOwnerIdService(int itemId, int userId);
 
-    List<ItemLastNextDTO> getByBookerIdService(int userId);
+    List<ItemLastNextDTO> getByBookerIdService(int userId, int from, int size);
 
-    List<ItemDTO> searchByParamService(String text);
+    List<ItemDTO> searchByParamService(String text, int from, int size);
 
     CommentDto addComment(int userId, int itemId, CommentDto commentDto);
 }
