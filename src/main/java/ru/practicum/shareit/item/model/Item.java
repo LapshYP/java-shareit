@@ -18,28 +18,32 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "items", schema = "public")
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     int id;
     @Column
-    @NotBlank
+    @NotBlank(message = "must not be blank")
     String name;
     @Column
-    @NotBlank
+    @NotBlank(message = "must not be blank")
     String description;
     @Column
-    @NotNull
+    @NotNull(message = "must not be null")
     Boolean available;
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "owner_id")
-    private User owner;
+
     @Column
     int request;
+
     @OneToMany(mappedBy = "item")
     private List<Booking> bookings;
     @OneToMany(mappedBy = "item")
     private List<Comment> comments;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "owner_id")
+    User owner;
 
 }

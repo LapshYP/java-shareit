@@ -7,7 +7,6 @@ import ru.practicum.shareit.booking.dto.BookingForResponse;
 import java.util.List;
 
 @Service
-
 public interface BookingService {
 
     BookingForResponse makeBookingService(BookingDto bookingDto, int userId);
@@ -16,8 +15,8 @@ public interface BookingService {
 
     BookingForResponse getByBookerService(int bookingId, int ownerId);
 
-    List<BookingForResponse> getAllForBookerService(String state, int userId);
+    List<BookingForResponse> getAllForBookerService(String state, int userId, int from, int size);
 
-    List<BookingForResponse> getAllForOwnerService(String state, int userId);
+    List<BookingForResponse> getAllForOwnerService(String state, int userId, int from, int size);
 
 }

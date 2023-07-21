@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-;
-
 @Service
-
 @RequiredArgsConstructor
 @Slf4j
 public class ItemServiceImpl implements ItemService {
@@ -60,6 +59,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = mapper.map(itemDTO, Item.class);
 
         item.setOwner(userRepoJpa.getReferenceById(userId));
+        item.setRequest(itemDTO.getRequestId());
 
         validateItem(item);
         userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
@@ -68,20 +68,20 @@ public class ItemServiceImpl implements ItemService {
         log.debug("Вещь с именем = {} и описанием {} создана", item.getName(), item.getDescription());
 
         ItemDTO createdItemDTO = mapper.map(createdItem, ItemDTO.class);
+        createdItemDTO.setRequestId(itemDTO.getRequestId());
         return createdItemDTO;
     }
 
     @Override
     @Transactional
     public ItemDTO updateService(ItemDTO itemDTO, int itemId, int userId) {
-        //   Item item = itemMapper.itemDTOToItem(itemDTO);
         Item item = mapper.map(itemDTO, Item.class);
 
         itemRepoJpa.findById(itemId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь c id = '" + item.getId() + "' не существует"));
 
         userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не может быть обновлена этим пользователем id = '" + userId + "' "));
 
-        Item updateItem = itemRepoJpa.getReferenceById(itemId);
+        Item updateItem = itemRepoJpa.findById(itemId).get();
         if (item.getName() != null) {
             updateItem.setName(item.getName());
         }
@@ -109,15 +109,29 @@ public class ItemServiceImpl implements ItemService {
         User owner = userRepoJpa.findById(userId)
                 .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
 
+        ItemLastNextDTO itemLastNextDTO = getItemLastNextDTO(userId, item);
+
+
+        List<Comment> comments = item.getComments();
+        List<CommentDto> commentDtoForResponse = comments
+                .stream()
+                .map(comment -> {
+                    return mapper.map(comment, CommentDto.class);
+                })
+                .collect(Collectors.toList());
+        itemLastNextDTO.setComments(commentDtoForResponse);
+        log.debug("Вещь с id = {} созданная {} просмотрена", itemId, userId);
+        return itemLastNextDTO;
+    }
+
+    public ItemLastNextDTO getItemLastNextDTO(int userId, Item item) {
         List<Booking> allBookings = item.getBookings();
 
         Booking lastBooking = null;
         Booking nextBooking = null;
         LocalDateTime now = LocalDateTime.now();
-
         int ownerId = item.getOwner().getId();
         if (ownerId == userId && allBookings != null) {
-
             int sizeLast = allBookings
                     .stream()
                     .filter(booking -> now.isAfter(booking.getStart()))
@@ -129,7 +143,6 @@ public class ItemServiceImpl implements ItemService {
                         .filter(booking -> now.isAfter(booking.getStart()))
                         .collect(Collectors.toList()).get(0);
             }
-
             int sizeNext = allBookings
                     .stream()
                     .filter(booking -> now.isBefore(booking.getStart()))
@@ -150,35 +163,27 @@ public class ItemServiceImpl implements ItemService {
         if (nextBooking != null && nextBooking.getStatus() != Status.REJECTED) {
             itemLastNextDTO.setNextBooking(mapper.map(nextBooking, BookingLastNextItemDto.class));
         } else itemLastNextDTO.setNextBooking(null);
-
-
-        List<Comment> comments = item.getComments();
-        List<CommentDto> commentDtoForResponse = comments
-                .stream()
-                .map(comment -> {
-                    return mapper.map(comment, CommentDto.class);
-                })
-                .collect(Collectors.toList());
-        itemLastNextDTO.setComments(commentDtoForResponse);
-
-        log.debug("Вещь с id = {} созданная {} просмотрена", itemId, userId);
         return itemLastNextDTO;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemLastNextDTO> getByBookerIdService(int userId) {
+    public List<ItemLastNextDTO> getByBookerIdService(int userId, int from, int size) {
         log.debug("Список всех вещей просмотрен");
         User booker = userRepoJpa.findById(userId).orElseThrow(() ->
                 new NotFoundException(HttpStatus.NOT_FOUND, "Пользователя с id  = '" + userId + " нет в базе данных"));
 
-        List<Item> items = itemRepoJpa.findAllByOwnerOrderById(booker);
+        if ((from < 0 || size < 0 || (from == 0 && size == 0))) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "не правильный параметр пагинации");
+        }
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<Item> items = itemRepoJpa.findAllByOwner(booker, pageable);
         List<ItemLastNextDTO> itemLastNextDTOList = new ArrayList<>();
+
         LocalDateTime now = LocalDateTime.now();
         for (Item item : items) {
             ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
             List<Booking> allBookings = item.getBookings();
-            allBookings.sort(Comparator.comparing(Booking::getStart));
 
             Booking lastBooking = null;
 
@@ -187,10 +192,9 @@ public class ItemServiceImpl implements ItemService {
                     .collect(Collectors.toList()).size();
             if (sizeLast != 0) {
                 lastBooking = allBookings.stream()
-                        .filter(booking -> now.isAfter(booking.getStart())
-                                //     && booking.getBooker().getId() == userId
-                        )
-                        .collect(Collectors.toList()).get(0);
+                        .filter(booking -> now.isAfter(booking.getStart()))
+                        .min((booking1, booking2) -> booking2.getStart().compareTo(booking1.getStart())).orElse(null);
+
             }
 
             Booking nextBooking = null;
@@ -202,13 +206,12 @@ public class ItemServiceImpl implements ItemService {
                 nextBooking = allBookings
                         .stream()
                         .filter(booking -> now.isBefore(booking.getStart()))
-                        .collect(Collectors.toList()).get(0);
+                        .min(Comparator.comparing(Booking::getStart)).orElse(null);
             }
 
             if (lastBooking != null) {
                 itemLastNextDTO.setLastBooking(mapper.map(lastBooking, BookingLastNextItemDto.class));
             } else itemLastNextDTO.setLastBooking(null);
-            // itemLastNextDTO.setNextBooking(bookingMapper.bookingToBookingLastNextItemDto(nextBooking));
             if (nextBooking != null) {
                 itemLastNextDTO.setNextBooking(mapper.map(nextBooking, BookingLastNextItemDto.class));
             } else itemLastNextDTO.setNextBooking(null);
@@ -224,26 +227,29 @@ public class ItemServiceImpl implements ItemService {
 
             itemLastNextDTOList.add(itemLastNextDTO);
         }
-
         return itemLastNextDTOList;
-
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ItemDTO> searchByParamService(String text) {
+    public List<ItemDTO> searchByParamService(String text, int from, int size) {
         if (text == null || text.isEmpty()) {
             log.debug("Запрос не задан");
             return new ArrayList<>();
         }
         String textToLowerCase = text.toLowerCase();
+        if ((from < 0 || size < 0 || (from == 0 && size == 0))) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "не правильный параметр пагинации");
+        }
+        Pageable pageable;
+
         if (text == null || text.isEmpty()) {
             log.debug("Вещь по запросу {} не найдена", text);
             return new ArrayList<>();
         } else {
+            pageable = PageRequest.of(from / size, size);
             log.debug("Вещь по запросу {} найдена", text);
-            // itemRepoJpa.searchByParam(text);
-            return itemRepoJpa.searchByParam(textToLowerCase)
+            return itemRepoJpa.searchByParam(textToLowerCase,pageable)
                     .stream()
                     .map(item -> {
                         return mapper.map(item, ItemDTO.class);
@@ -279,11 +285,12 @@ public class ItemServiceImpl implements ItemService {
         if (bookings
                 .stream()
                 .filter(booking -> (booking.getBooker().getId() == userId)
-                        && booking.getEnd().isBefore(LocalDateTime.now())
+                        && !booking.getStart().isAfter(LocalDateTime.now())
+                        && !booking.getStatus().equals(Status.REJECTED)
                 )
                 .collect(Collectors.toList()).size() == 0) {
             throw new BadRequestException(HttpStatus.BAD_REQUEST,
-                    "Комментировать может только арендатор вещи");
+                    "Комментировать может только арендатор вещи, с наступившим началом букинга и статусом НЕ REJECTED");
         }
 
         Comment comment = mapper.map(commentDto, Comment.class);

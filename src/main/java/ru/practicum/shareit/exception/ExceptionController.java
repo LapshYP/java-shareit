@@ -23,7 +23,7 @@ public class ExceptionController {
         return Map.of("MethodArgumentNotValidException ", ex.getMessage());
     }
 
-    //400
+    //400+
     @ExceptionHandler({ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> validExceptionException(ConstraintViolationException ex) {
@@ -40,7 +40,7 @@ public class ExceptionController {
         return Map.of("BadRequestException ", erroMessage);
     }
 
-    //404
+    //404+
     @ExceptionHandler({NotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> notFoundException(NotFoundException ex) {
@@ -81,6 +81,7 @@ public class ExceptionController {
         return Map.of("MissingPathVariableException  ", erroMessage);
     }
 
+    //500+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<?> handleException(final UnsupportedStatusException ex) {

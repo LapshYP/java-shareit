@@ -3,6 +3,9 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
         }
         if (bookingDto.getStart() == null ||
                 bookingDto.getEnd() == null) {
-            throw new BadRequestException(HttpStatus.NOT_FOUND, "Ошибка времени создания букинга");
+            throw new BadRequestException(HttpStatus.NOT_FOUND, "Ошибка времени (null) создания букинга");
         }
         if (bookingDto.getStart().isAfter(bookingDto.getEnd()) ||
                 bookingDto.getStart().isEqual(bookingDto.getEnd())
@@ -125,10 +128,15 @@ public class BookingServiceImpl implements BookingService {
     @SneakyThrows
     @Override
     @Transactional(readOnly = true)
-    public List<BookingForResponse> getAllForBookerService(String bookingState, int userId) {
+    public List<BookingForResponse> getAllForBookerService(String bookingState, int userId, int from, int size) {
         User booker
                 = userRepoJpa.findById(userId)
                 .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "User with id " + userId + " not exists in the DB"));
+
+        if (from < 0 || size < 0 || (from == 0 && size == 0)) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Ошибка в параметрах Pagination");
+        }
+        Pageable paging = PageRequest.of(from / size, size, Sort.by("start"));
 
         State state;
         if (bookingState == null) {
@@ -145,27 +153,27 @@ public class BookingServiceImpl implements BookingService {
         List<Booking> bookingList = new ArrayList<>();
         switch (state) {
             case ALL:
-                bookingList = bookingRepoJpa.findAllByBookerOrderByStartDesc(booker);
+                bookingList = bookingRepoJpa.findAllByBookerOrderByStartDesc(booker, paging);
                 break;
             case FUTURE:
                 bookingList = bookingRepoJpa.findAllByBookerAndStartIsAfterOrderByStartDesc(
-                        booker, LocalDateTime.now());
+                        booker, LocalDateTime.now(), paging);
                 break;
             case WAITING:
                 bookingList = bookingRepoJpa.findAllByBookerAndStatusEqualsOrderByStartDesc(
-                        booker, Status.WAITING);
+                        booker, Status.WAITING, paging);
                 break;
             case REJECTED:
                 bookingList = bookingRepoJpa.findAllByBookerAndStatusEqualsOrderByStartDesc(
-                        booker, Status.REJECTED);
+                        booker, Status.REJECTED, paging);
                 break;
             case CURRENT:
                 bookingList = bookingRepoJpa.findAllBookingsForBookerWithStartAndEnd(
-                        booker, LocalDateTime.now(), LocalDateTime.now());
+                        booker, LocalDateTime.now(), LocalDateTime.now(), paging);
                 break;
             case PAST:
                 bookingList = bookingRepoJpa.findAllByBookerAndEndIsBeforeOrderByStartDesc(
-                        booker, LocalDateTime.now());
+                        booker, LocalDateTime.now(), paging);
                 break;
             case UNKNOWN:
                 throw new UnsupportedStatusException("Unknown bookingState: UNSUPPORTED_STATUS");
@@ -181,12 +189,19 @@ public class BookingServiceImpl implements BookingService {
         return bookingsListForResponse;
     }
 
+
     @Override
     @Transactional(readOnly = true)
-    public List<BookingForResponse> getAllForOwnerService(String bookingState, int userId) {
+    public List<BookingForResponse> getAllForOwnerService(String bookingState, int userId, int from, int size) {
         User owner
                 = userRepoJpa.findById(userId)
                 .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "User with id " + userId + " not exists in the DB"));
+
+        if (from < 0 || size < 0 || (from == 0 && size == 0)) {
+            throw new BadRequestException(HttpStatus.BAD_REQUEST, "Ошибка в параметрах Pagination");
+        }
+        Pageable paging = PageRequest.of(from / size, size, Sort.by("start"));
+
         List<Booking> bookingListResult = new ArrayList<>();
         State state;
         if (bookingState == null) {
@@ -201,27 +216,27 @@ public class BookingServiceImpl implements BookingService {
 
         switch (state) {
             case ALL:
-                bookingListResult = bookingRepoJpa.getAllForOwner(owner.getId());
+                bookingListResult = bookingRepoJpa.getAllForOwner(owner.getId(), paging);
                 break;
             case FUTURE:
                 bookingListResult = bookingRepoJpa.findAllByOwnerAndStartIsAfterOrderByStartDesc(
-                        owner.getId(), LocalDateTime.now());
+                        owner.getId(), LocalDateTime.now(), paging);
                 break;
             case WAITING:
                 bookingListResult = bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(
-                        owner.getId(), Status.WAITING);
+                        owner.getId(), Status.WAITING, paging);
                 break;
             case REJECTED:
                 bookingListResult = bookingRepoJpa.findAllByOwnerAndStatusEqualsOrderByStartDesc(
-                        owner.getId(), Status.REJECTED);
+                        owner.getId(), Status.REJECTED, paging);
                 break;
             case CURRENT:
                 bookingListResult = bookingRepoJpa.findAllBookingsForOwnerWithStartAndEnd(
-                        owner, LocalDateTime.now(), LocalDateTime.now());
+                        owner, LocalDateTime.now(), LocalDateTime.now(), paging);
                 break;
             case PAST:
                 bookingListResult = bookingRepoJpa.findAllByOwnerAndEndIsBeforeOrderByStartDesc(
-                        owner, LocalDateTime.now());
+                        owner, LocalDateTime.now(), paging);
                 break;
             case UNKNOWN:
                 throw new UnsupportedStatusException("Unknown bookingState: UNSUPPORTED_STATUS");

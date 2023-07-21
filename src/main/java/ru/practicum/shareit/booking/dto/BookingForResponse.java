@@ -9,6 +9,7 @@ import ru.practicum.shareit.user.dto.UserDTO;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class BookingForResponse {
     int id;
     @JsonProperty("start")
@@ -26,4 +28,16 @@ public class BookingForResponse {
     UserDTO booker;
     Status status;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BookingForResponse)) return false;
+        BookingForResponse that = (BookingForResponse) o;
+        return getId() == that.getId() && Objects.equals(getStartTime(), that.getStartTime()) && Objects.equals(getEndTime(), that.getEndTime()) && Objects.equals(getItem(), that.getItem()) && Objects.equals(getBooker(), that.getBooker()) && getStatus() == that.getStatus();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getStartTime(), getEndTime(), getItem(), getBooker(), getStatus());
+    }
 }
