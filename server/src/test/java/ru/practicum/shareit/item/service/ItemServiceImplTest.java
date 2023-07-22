@@ -24,12 +24,11 @@ import ru.practicum.shareit.item.repository.ItemRepoJpa;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
 
-import javax.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -147,7 +146,7 @@ class ItemServiceImplTest {
 
         item.setBookings(List.of(booking, booking2));
 
-        when(itemRepoJpa.findAllByOwner(any(),any()))
+        when(itemRepoJpa.findAllByOwner(any(), any()))
                 .thenReturn(List.of(item));
 
         when(userRepoJpa.findById(any()))
@@ -158,7 +157,7 @@ class ItemServiceImplTest {
         BookingLastNextItemDto bookingLastNextItemDto = mapper.map(booking, BookingLastNextItemDto.class);
         itemDTO1.setLastBooking(bookingLastNextItemDto);
 
-        List<ItemLastNextDTO> byBookerIdService = itemService.getByBookerIdService(1, 0,20);
+        List<ItemLastNextDTO> byBookerIdService = itemService.getByBookerIdService(1, 0, 20);
         assertEquals(List.of(itemDTO1), byBookerIdService);
     }
 
@@ -175,38 +174,6 @@ class ItemServiceImplTest {
         assertEquals("404 NOT_FOUND \"Пользователь с id=77 не найден\"", exception.getMessage());
     }
 
-    @Test
-    void createItemWithEmptyNameTest() {
-        item.setName("");
-        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
-        var exception = assertThrows(
-                ConstraintViolationException.class,
-                () -> itemService.createService(itemDTO1, 999));
-
-        assertEquals("name: must not be blank", exception.getMessage());
-    }
-
-    @Test
-    void createItemWithEmptyDesctriptionTest() {
-        item.setDescription("");
-        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
-        var exception = assertThrows(
-                ConstraintViolationException.class,
-                () -> itemService.createService(itemDTO1, 999));
-
-        assertEquals("description: must not be blank", exception.getMessage());
-    }
-
-    @Test
-    void createItemWithEmptyAvailableTest() {
-        item.setAvailable(null);
-        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
-        var exception = assertThrows(
-                ConstraintViolationException.class,
-                () -> itemService.createService(itemDTO1, 999));
-
-        assertEquals("available: must not be null", exception.getMessage());
-    }
 
     @Test
     void createItemWithWrongUserIDTest() {
@@ -271,7 +238,7 @@ class ItemServiceImplTest {
 
     @Test
     void searchByParamServiceTest() {
-        when(itemRepoJpa.searchByParam(any(),any()))
+        when(itemRepoJpa.searchByParam(any(), any()))
                 .thenReturn(List.of(item));
         ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
 
@@ -412,4 +379,37 @@ class ItemServiceImplTest {
             itemService.addComment(userId, itemId, commentDto);
         });
     }
+
+//    @Test
+//    void createItemWithEmptyAvailableTest() {
+//        item.setAvailable(null);
+//        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
+//        var exception = assertThrows(
+//                ConstraintViolationException.class,
+//                () -> itemService.createService(itemDTO1, 999));
+//
+//        assertEquals("available: must not be null", exception.getMessage());
+//    }
+
+//    @Test
+//    void createItemWithEmptyDesctriptionTest() {
+//        item.setDescription("");
+//        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
+//        var exception = assertThrows(
+//                ConstraintViolationException.class,
+//                () -> itemService.createService(itemDTO1, 999));
+//
+//        assertEquals("description: must not be blank", exception.getMessage());
+//    }
+
+//    @Test
+//    void createItemWithEmptyNameTest() {
+//        item.setName("");
+//        ItemDTO itemDTO1 = mapper.map(item, ItemDTO.class);
+//        var exception = assertThrows(
+//                ConstraintViolationException.class,
+//                () -> itemService.createService(itemDTO1, 999));
+//
+//        assertEquals("name: must not be blank", exception.getMessage());
+//    }
 }

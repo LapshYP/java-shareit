@@ -42,14 +42,6 @@ public class ItemServiceImpl implements ItemService {
 
     private final ModelMapper mapper = new ModelMapper();
 
-    private void validateItem(Item item) {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<Item>> violations = validator.validate(item);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-    }
 
     @SneakyThrows
     @Override
@@ -61,7 +53,7 @@ public class ItemServiceImpl implements ItemService {
         item.setOwner(userRepoJpa.getReferenceById(userId));
         item.setRequest(itemDTO.getRequestId());
 
-        validateItem(item);
+
         userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
 
         Item createdItem = itemRepoJpa.save(item);
@@ -91,9 +83,10 @@ public class ItemServiceImpl implements ItemService {
         if (item.getAvailable() != null) {
             updateItem.setAvailable(item.getAvailable());
         }
+
         log.debug("Вещь с именем = {} и описанием {} обновлена", item.getName(), item.getDescription());
         updateItem.setOwner(userRepoJpa.getReferenceById(userId));
-        validateItem(updateItem);
+
         Item updatedItem = itemRepoJpa.save(updateItem);
         ItemDTO updatedItemDTO = mapper.map(updatedItem, ItemDTO.class);
         return updatedItemDTO;
@@ -249,7 +242,7 @@ public class ItemServiceImpl implements ItemService {
         } else {
             pageable = PageRequest.of(from / size, size);
             log.debug("Вещь по запросу {} найдена", text);
-            return itemRepoJpa.searchByParam(textToLowerCase,pageable)
+            return itemRepoJpa.searchByParam(textToLowerCase, pageable)
                     .stream()
                     .map(item -> {
                         return mapper.map(item, ItemDTO.class);

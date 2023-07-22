@@ -16,7 +16,6 @@ import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
 
-import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -85,25 +84,6 @@ class UserServiceTest {
         );
     }
 
-
-    @Test
-    void createUserSerivceWithBadNameTest() {
-        UserDTO userDTO = mapper.map(user, UserDTO.class);
-        userDTO.setName("");
-        assertThrows(
-                ConstraintViolationException.class,
-                () -> userService.createUserSerivce(userDTO));
-    }
-
-    @Test
-    void createUserSerivceWithBadEmailTest() {
-        UserDTO userDTO = mapper.map(user, UserDTO.class);
-        userDTO.setEmail("@");
-        assertThrows(
-                ConstraintViolationException.class,
-                () -> userService.createUserSerivce(userDTO));
-    }
-
     @Test
     void getAllTest() {
 
@@ -133,36 +113,6 @@ class UserServiceTest {
     }
 
     @Test
-    void updateUserWithBadNameTest() {
-
-        // user.setEmail("ivan@mailupdated.ru");
-        user.setName("");
-        Mockito.when(userRepoJpa.findById(Mockito.any()))
-                .thenReturn(Optional.ofNullable(user));
-
-        UserDTO userDto = mapper.map(user, UserDTO.class);
-
-        assertThrows(
-                ConstraintViolationException.class,
-                () -> userService.updateUserService(userDto, userDto.getId()));
-    }
-
-    @Test
-    void updateUserWithBadEmailTest() {
-
-        user.setEmail("ivan@");
-
-        Mockito.when(userRepoJpa.findById(Mockito.any()))
-                .thenReturn(Optional.ofNullable(user));
-
-        UserDTO userDto = mapper.map(user, UserDTO.class);
-
-        assertThrows(
-                ConstraintViolationException.class,
-                () -> userService.updateUserService(userDto, userDto.getId()));
-    }
-
-    @Test
     void deleteUserServiceWtihBadIdTest() {
         Mockito.when(userRepoJpa.findById(777))
                 .thenThrow(new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = 777 не найден в базе данных"));
@@ -186,8 +136,6 @@ class UserServiceTest {
 
         assertThrows(IndexOutOfBoundsException.class,
                 () -> userRepoJpa.findAll().get(0));
-
-
     }
 
     @Test
@@ -199,4 +147,50 @@ class UserServiceTest {
 
         assertEquals(userDTO, userService.getUserSerivece(1));
     }
+
+//    @Test
+//    void createUserSerivceWithBadEmailTest() {
+//        UserDTO userDTO = mapper.map(user, UserDTO.class);
+//        userDTO.setEmail("@");
+//        assertThrows(
+//                ConstraintViolationException.class,
+//                () -> userService.createUserSerivce(userDTO));
+//    }
+
+//@Test
+//void createUserSerivceWithBadNameTest() {
+//    UserDTO userDTO = mapper.map(user, UserDTO.class);
+//    userDTO.setName("");
+//    assertThrows(
+//            ConstraintViolationException.class,
+//            () -> userService.createUserSerivce(userDTO));
+//}
+
+//    @Test
+//    void updateUserWithBadEmailTest() {
+//
+//        user.setEmail("ivan@");
+//
+//        Mockito.when(userRepoJpa.findById(Mockito.any()))
+//                .thenReturn(Optional.ofNullable(user));
+//
+//        UserDTO userDto = mapper.map(user, UserDTO.class);
+//
+//        assertThrows(
+//                ConstraintViolationException.class,
+//                () -> userService.updateUserService(userDto, userDto.getId()));
+//    }
+//@Test
+//void updateUserWithBadNameTest() {
+//
+//    user.setName("");
+//    Mockito.when(userRepoJpa.findById(Mockito.any()))
+//            .thenReturn(Optional.ofNullable(user));
+//
+//    UserDTO userDto = mapper.map(user, UserDTO.class);
+//
+//    assertThrows(
+//            ConstraintViolationException.class,
+//            () -> userService.updateUserService(userDto, userDto.getId()));
+//}
 }

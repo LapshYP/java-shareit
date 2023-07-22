@@ -7,8 +7,6 @@ import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -25,13 +23,10 @@ public class Item {
     @Column
     int id;
     @Column
-    @NotBlank(message = "must not be blank")
     String name;
     @Column
-    @NotBlank(message = "must not be blank")
     String description;
     @Column
-    @NotNull(message = "must not be null")
     Boolean available;
 
     @Column
