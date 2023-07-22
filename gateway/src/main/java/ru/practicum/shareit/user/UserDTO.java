@@ -17,9 +17,9 @@ import javax.validation.constraints.NotEmpty;
 @Builder
 public class UserDTO {
     int id;
-    @NotEmpty(groups =  Validation.Post.class,message = "must not be blank")
-      private String name;
+    @NotEmpty(groups = Validation.Post.class, message = "must not be blank")
+    private String name;
     @Email(message = "Email is not valid", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
-    @NotEmpty(groups = Validation.Post.class,message = "must not be blank")
-     private String email;
+    @NotEmpty(groups = Validation.Post.class, message = "must not be blank")
+    private String email;
 }

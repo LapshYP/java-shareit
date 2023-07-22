@@ -39,7 +39,7 @@ public class ItemController {
         if (itemDTO.getDescription() != null && itemDTO.getDescription().isBlank()) {
             throw new ValidationException("поле описания не может быть пустым");
         }
-        return itemClient.updateItem(userId, itemId,itemDTO );
+        return itemClient.updateItem(userId, itemId, itemDTO);
     }
 
     @PostMapping("/{itemId}/comment")
@@ -71,7 +71,7 @@ public class ItemController {
             @RequestParam String text,
             @RequestParam(defaultValue = "0") @PositiveOrZero int from,
             @RequestParam(defaultValue = "20") @Positive int size) {
-        return itemClient.searchItemsByText(userId,text, from, size);
+        return itemClient.searchItemsByText(userId, text, from, size);
     }
 
 

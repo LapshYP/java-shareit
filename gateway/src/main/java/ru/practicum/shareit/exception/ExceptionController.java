@@ -1,6 +1,7 @@
 package ru.practicum.shareit.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.MissingRequestHeaderException;
@@ -30,13 +31,13 @@ public class ExceptionController {
     }
 
     //400
-//    @ExceptionHandler({BadRequestException.class})
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public Map<String, String> badRequestException(BadRequestException ex) {
-//        String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the object has wrong fields";
-//
-//        return Map.of("BadRequestException ", erroMessage);
-//    }
+    @ExceptionHandler({BadRequestException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> badRequestException(BadRequestException ex) {
+        String erroMessage = ex.getMessage() != null ? ex.getMessage() : "the object has wrong fields";
+
+        return Map.of("BadRequestException ", erroMessage);
+    }
 
     //404+
 //    @ExceptionHandler({NotFoundException.class})
@@ -79,12 +80,12 @@ public class ExceptionController {
         return Map.of("MissingPathVariableException  ", erroMessage);
     }
 
-    //500+
-//    @ExceptionHandler
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    public ResponseEntity<?> handleException(final UnsupportedStatusException ex) {
-//        String msg = "{\"error\":\"Unknown state: UNSUPPORTED_STATUS\",\n" +
-//                "\"message\":\"UNSUPPORTED_STATUS\"}";
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg);
-//    }
+  //  500+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<?> handleException(final UnsupportedStatusException ex) {
+        String msg = "{\"error\":\"Unknown state: UNSUPPORTED_STATUS\",\n" +
+                "\"message\":\"UNSUPPORTED_STATUS\"}";
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(msg);
+    }
 }

@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.item.dto.ItemDTO;
-import ru.practicum.shareit.request.model.RequestDto;
 import ru.practicum.shareit.user.dto.UserDTO;
 
 import java.time.LocalDateTime;
