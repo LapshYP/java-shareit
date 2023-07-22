@@ -19,10 +19,8 @@ import java.util.Objects;
 public class BookingLastNextItemDto {
     int id;
     @JsonProperty("start")
-    @NotNull
     LocalDateTime startTime;
     @JsonProperty("end")
-    @NotNull
     LocalDateTime endTime;
     int bookerId;
     Status status;

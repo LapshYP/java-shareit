@@ -7,7 +7,6 @@ import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.item.dto.ItemDTO;
 import ru.practicum.shareit.user.dto.UserDTO;
 
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -21,9 +20,9 @@ import java.util.Objects;
 public class BookingForResponse {
     int id;
     @JsonProperty("start")
-    @NotNull LocalDateTime startTime;
+    LocalDateTime startTime;
     @JsonProperty("end")
-    @NotNull LocalDateTime endTime;
+    LocalDateTime endTime;
     ItemDTO item;
     UserDTO booker;
     Status status;

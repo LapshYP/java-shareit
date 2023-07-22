@@ -8,7 +8,6 @@ import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
@@ -20,11 +19,8 @@ import java.time.LocalDateTime;
 @Builder
 public class BookingDto {
     int id;
-    @NotNull
     int itemId;
-    @NotNull
     private LocalDateTime start;
-    @NotNull
     LocalDateTime end;
     Item item;
     User booker;

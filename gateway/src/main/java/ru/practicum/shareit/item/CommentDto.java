@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class CommentDto {
     private Long id;
     @JsonProperty("text")
-    @NotBlank(message = "Комментарий не может быть пустым")
+    @NotBlank(message = "must not be blank")
     private String content;
     private String authorName;
     private LocalDateTime created;

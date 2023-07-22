@@ -39,14 +39,14 @@ public class BookingServiceImpl implements BookingService {
 
     private final ModelMapper mapper = new ModelMapper();
 
-    private void validateBooking(Booking booking) {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<Booking>> violations = validator.validate(booking);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-    }
+//    private void validateBooking(Booking booking) {
+//        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+//        Validator validator = factory.getValidator();
+//        Set<ConstraintViolation<Booking>> violations = validator.validate(booking);
+//        if (!violations.isEmpty()) {
+//            throw new ConstraintViolationException(violations);
+//        }
+//    }
 
     @Override
     @Transactional
@@ -80,7 +80,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setBooker(booker);
         booking.setItem(item);
         booking.setStatus(Status.WAITING);
-        validateBooking(booking);
+//        validateBooking(booking);
         Booking bookingToSave = bookingRepoJpa.save(booking);
         BookingForResponse bookingForResponse = mapper.map(bookingToSave, BookingForResponse.class);
         return bookingForResponse;
@@ -99,11 +99,11 @@ public class BookingServiceImpl implements BookingService {
 
         if (approved && !booking.getStatus().equals(Status.APPROVED)) {
             booking.setStatus(Status.APPROVED);
-            validateBooking(booking);
+//            validateBooking(booking);
             bookingRepoJpa.save(booking);
         } else if (!approved && !booking.getStatus().equals(Status.REJECTED)) {
             booking.setStatus(Status.REJECTED);
-            validateBooking(booking);
+//            validateBooking(booking);
             bookingRepoJpa.save(booking);
         } else {
             throw new BadRequestException(HttpStatus.BAD_REQUEST, "Status is already updated for booking with id " + bookingId);
