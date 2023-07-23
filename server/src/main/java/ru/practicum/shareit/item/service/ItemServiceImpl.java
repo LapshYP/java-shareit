@@ -165,10 +165,11 @@ public class ItemServiceImpl implements ItemService {
             throw new BadRequestException(HttpStatus.BAD_REQUEST, "не правильный параметр пагинации");
         }
         Pageable pageable = PageRequest.of(from / size, size);
-        List<Item> items = itemRepoJpa.findAllByOwner(booker, pageable);
+        List<Item> items = itemRepoJpa.findAllByOwnerOrderById(booker, pageable);
         List<ItemLastNextDTO> itemLastNextDTOList = new ArrayList<>();
 
         LocalDateTime now = LocalDateTime.now();
+
         for (Item item : items) {
             ItemLastNextDTO itemLastNextDTO = mapper.map(item, ItemLastNextDTO.class);
             List<Booking> allBookings = item.getBookings();

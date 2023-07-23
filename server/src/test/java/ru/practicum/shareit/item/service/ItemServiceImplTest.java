@@ -146,7 +146,7 @@ class ItemServiceImplTest {
 
         item.setBookings(List.of(booking, booking2));
 
-        when(itemRepoJpa.findAllByOwner(any(), any()))
+        when(itemRepoJpa.findAllByOwnerOrderById(any(), any()))
                 .thenReturn(List.of(item));
 
         when(userRepoJpa.findById(any()))
