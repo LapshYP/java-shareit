@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
@@ -26,7 +25,6 @@ public class UserServiceImpl implements UserService {
 
     @SneakyThrows
     @Override
-    @Transactional
     public UserDTO createUserSerivce(UserDTO userDTO) {
         User user = mapper.map(userDTO, User.class);
 
@@ -37,7 +35,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<UserDTO> getAll() {
         return userRepoJpa.findAll().stream()
                 .map(user -> {
@@ -48,7 +45,6 @@ public class UserServiceImpl implements UserService {
 
     @SneakyThrows
     @Override
-    @Transactional
     public UserDTO updateUserService(UserDTO userDTO, int userId) {
         User user = mapper.map(userDTO, User.class);
         User updatedUser = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
@@ -68,7 +64,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional
     public UserDTO deleteUserService(int userId) {
         User user = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
         UserDTO userDTO = mapper.map(user, UserDTO.class);
@@ -78,7 +73,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public UserDTO getUserSerivece(int userId) {
         User user = userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Пользователь с id = '" + userId + "' не найден"));
         UserDTO userDTO = mapper.map(user, UserDTO.class);

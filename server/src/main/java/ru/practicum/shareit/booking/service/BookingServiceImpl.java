@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingForResponse;
 import ru.practicum.shareit.booking.model.Booking;
@@ -39,7 +38,6 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    @Transactional
     public BookingForResponse makeBookingService(BookingDto bookingDto, int userId) {
         Item item = itemRepoJpa.findById(bookingDto.getItemId()).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не найдена"));
 
@@ -77,7 +75,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional
     public BookingForResponse updateBooking(int bookingId, int userId, boolean approved) {
         Optional<Booking> bookingRepoJpaById = bookingRepoJpa.findById(bookingId);
         Booking booking = bookingRepoJpaById.orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Букинг с таким айди не найден"));
@@ -103,7 +100,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public BookingForResponse getByBookerService(int bookingId, int bookerId) {
         Booking booking = bookingRepoJpa.findById(bookingId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Booking with id " + bookingId + " not exists in the DB"));
 
@@ -117,7 +113,6 @@ public class BookingServiceImpl implements BookingService {
 
     @SneakyThrows
     @Override
-    @Transactional(readOnly = true)
     public List<BookingForResponse> getAllForBookerService(String bookingState, int userId, int from, int size) {
         User booker
                 = userRepoJpa.findById(userId)
@@ -181,7 +176,6 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    @Transactional(readOnly = true)
     public List<BookingForResponse> getAllForOwnerService(String bookingState, int userId, int from, int size) {
         User owner
                 = userRepoJpa.findById(userId)
