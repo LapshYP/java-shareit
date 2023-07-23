@@ -22,4 +22,5 @@ public class UserDTO {
     @Email(message = "Email is not valid", regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
     @NotEmpty(groups = Validation.Post.class, message = "must not be blank")
     private String email;
+
 }
