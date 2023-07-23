@@ -90,7 +90,6 @@ class BookingControllerITest {
                 .status(Status.WAITING)
                 .build();
 
-
     }
 
     @AfterEach
