@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.validation.Validation;
 
 import javax.validation.Valid;
+import javax.validation.ValidationException;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -27,8 +28,14 @@ public class UserControllerGatway {
 
     @PatchMapping(value = "/{id}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @Validated(Validation.Patch.class)
-    public ResponseEntity<Object> patch(@Valid @RequestBody UserDTO userDTO,
-                                        @PathVariable("id") int id) {
+    public ResponseEntity<Object> updateUser(@Valid @RequestBody UserDTO userDTO,
+                                             @PathVariable("id") int id) {
+        if (userDTO.getName() != null && userDTO.getName().isBlank()) {
+            throw new ValidationException("поле имени не может быть пустым");
+        }
+        if (userDTO.getEmail() != null && userDTO.getEmail().isBlank()) {
+            throw new ValidationException("поле email не может быть пустым");
+        }
         return userClient.updateUserService(userDTO, id);
     }
 

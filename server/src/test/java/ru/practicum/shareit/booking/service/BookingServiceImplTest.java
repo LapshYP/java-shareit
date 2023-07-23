@@ -29,11 +29,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServiceImplTest {
@@ -500,6 +499,55 @@ class BookingServiceImplTest {
                 () -> bookingService.updateBooking(77, 1, true));
         assertEquals("404 NOT_FOUND \"Букинг с таким айди не найден\"",
                 exception.getMessage());
+    }
+
+    @Test
+    void testUpdateBooking_alreadyUpdatedStatus() {
+        // Arrange
+        int bookingId = 1;
+        int userId = 1;
+        boolean approved = true;
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+        booking.setStatus(Status.APPROVED);
+        when(bookingRepoJpa.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        // Act and Assert
+        assertThrows(BadRequestException.class, () ->
+                bookingService.updateBooking(bookingId, userId, approved)
+        );
+        verify(bookingRepoJpa, never()).save(booking);
+    }
+
+    @Test
+    void testUpdateBookingRejectedStatus() {
+        int bookingId = 1;
+        int userId = 1;
+        boolean approved = false;
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(bookingRepoJpa.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        BookingForResponse result = bookingService.updateBooking(bookingId, userId, approved);
+
+        assertEquals(Status.REJECTED, booking.getStatus());
+        verify(bookingRepoJpa, times(1)).save(booking);
+        assertNotNull(result);
+    }
+
+    @Test
+    void testUpdateBookingAppruvedStatus() {
+        int bookingId = 1;
+        int userId = 1;
+        boolean approved = true;
+        Booking booking = mapper.map(bookingForResponse, Booking.class);
+
+        when(bookingRepoJpa.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        BookingForResponse result = bookingService.updateBooking(bookingId, userId, approved);
+
+        assertEquals(Status.APPROVED, booking.getStatus());
+        verify(bookingRepoJpa, times(1)).save(booking);
+        assertNotNull(result);
     }
 
 

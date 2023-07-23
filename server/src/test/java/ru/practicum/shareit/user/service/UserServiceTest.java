@@ -136,6 +136,8 @@ class UserServiceTest {
 
         assertThrows(IndexOutOfBoundsException.class,
                 () -> userRepoJpa.findAll().get(0));
+
+
     }
 
     @Test
