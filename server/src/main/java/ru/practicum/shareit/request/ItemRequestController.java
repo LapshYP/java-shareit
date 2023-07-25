@@ -6,7 +6,6 @@ import ru.practicum.shareit.request.dto.RequestDto;
 import ru.practicum.shareit.request.dto.RequestDtoWithRequest;
 import ru.practicum.shareit.request.service.RequestItemService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 
@@ -18,7 +17,7 @@ public class ItemRequestController {
     private final RequestItemService requestItemService;
 
     @PostMapping
-    RequestDto addItemRequest(@Valid @RequestBody(required = false) RequestDto requestDto,
+    RequestDto addItemRequest(@RequestBody(required = false) RequestDto requestDto,
                               @RequestHeader("X-Sharer-User-Id") int userId) {
         return requestItemService.addItemRequestService(requestDto, userId);
     }

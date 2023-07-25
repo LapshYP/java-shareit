@@ -7,7 +7,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,7 +22,6 @@ public class Request {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column
     int id;
-    @NotNull
     @Column
     String description;
     @ManyToOne
@@ -38,8 +36,6 @@ public class Request {
             (mappedBy = "request", orphanRemoval = true,
                     cascade = CascadeType.ALL)
     @Column(nullable = true)
-    //@JoinColumn(name = "request_id")
     @JsonIgnore
-    // @JsonManagedReference
     List<Item> items;
 }

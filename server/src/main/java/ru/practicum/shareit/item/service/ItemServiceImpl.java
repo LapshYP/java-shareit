@@ -23,12 +23,10 @@ import ru.practicum.shareit.item.repository.ItemRepoJpa;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepoJpa;
 
-import javax.validation.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,11 +64,10 @@ public class ItemServiceImpl implements ItemService {
     public ItemDTO updateService(ItemDTO itemDTO, int itemId, int userId) {
         Item item = mapper.map(itemDTO, Item.class);
 
-        itemRepoJpa.findById(itemId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь c id = '" + item.getId() + "' не существует"));
+        Item updateItem = itemRepoJpa.findById(itemId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь c id = '" + item.getId() + "' не существует"));
 
         userRepoJpa.findById(userId).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND, "Вещь не может быть обновлена этим пользователем id = '" + userId + "' "));
 
-        Item updateItem = itemRepoJpa.findById(itemId).get();
         if (item.getName() != null) {
             updateItem.setName(item.getName());
         }
@@ -246,15 +243,6 @@ public class ItemServiceImpl implements ItemService {
         }
     }
 
-    private void validateComment(Comment comment) {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<Comment>> violations = validator.validate(comment);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-    }
-
     @Override
     public CommentDto addComment(int userId, int itemId, CommentDto commentDto) {
         if (commentDto.getContent().isBlank()) {
@@ -284,7 +272,6 @@ public class ItemServiceImpl implements ItemService {
         comment.setItem(item);
         comment.setAuthor(user);
         comment.setCreated(LocalDateTime.now());
-        validateComment(comment);
         Comment commentToDto = commentRepoJpa.save(comment);
         return mapper.map(commentToDto, CommentDto.class);
     }

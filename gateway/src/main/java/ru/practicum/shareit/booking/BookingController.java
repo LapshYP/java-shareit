@@ -49,10 +49,7 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Object> makeBooking(@RequestHeader("X-Sharer-User-Id") int userId,
                                               @RequestBody @Valid BookingDto bookingDto) {
-//        if (!bookingDto.getEnd().isAfter(bookingDto.getStart())) {
-//
-//            throw new ValidationException("Дата окончания бронирования должна быть после даты начала");
-//        }
+
         return bookingClient.makeBookingService(bookingDto, userId);
     }
 

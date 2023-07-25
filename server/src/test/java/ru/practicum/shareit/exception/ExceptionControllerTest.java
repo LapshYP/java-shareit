@@ -20,7 +20,6 @@ import ru.practicum.shareit.user.dto.UserDTO;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.ConstraintViolationException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
@@ -96,35 +95,6 @@ class ExceptionControllerTest {
 
     @SneakyThrows
     @Test
-    void createUserConstraintViolationException() {
-        when(userService.createUserSerivce(any()))
-                .thenThrow(ConstraintViolationException.class);
-
-        mockMvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(userDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().is(400));
-    }
-
-    //    @SneakyThrows
-//    @Test
-//    void createUserJdbcSQLIntegrityConstraintViolationException() {
-//        when(userService.createUserSerivce(any()))
-//                .thenThrow(JdbcSQLIntegrityConstraintViolationException.class);
-//
-//        mockMvc.perform(post("/users")
-//                        .content(objectMapper.writeValueAsString(userDto))
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andDo(MockMvcResultHandlers.print())
-//                .andExpect(status().is(409));
-//    }
-    @SneakyThrows
-    @Test
     void getAllForUserUnsupportedStatusException() {
         when(bookingService.getAllForBookerService(anyString(), anyInt(), anyInt(), anyInt()))
                 .thenThrow(UnsupportedStatusException.class);
@@ -153,6 +123,34 @@ class ExceptionControllerTest {
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().is(404));
     }
+//    @SneakyThrows
+//    @Test
+//    void createUserConstraintViolationException() {
+//        when(userService.createUserSerivce(any()))
+//                .thenThrow(ConstraintViolationException.class);
+//
+//        mockMvc.perform(post("/users")
+//                        .content(objectMapper.writeValueAsString(userDto))
+//                        .characterEncoding(StandardCharsets.UTF_8)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .accept(MediaType.APPLICATION_JSON))
+//                .andDo(MockMvcResultHandlers.print())
+//                .andExpect(status().is(400));
+//    }
 
+    //    @SneakyThrows
+//    @Test
+//    void createUserJdbcSQLIntegrityConstraintViolationException() {
+//        when(userService.createUserSerivce(any()))
+//                .thenThrow(JdbcSQLIntegrityConstraintViolationException.class);
+//
+//        mockMvc.perform(post("/users")
+//                        .content(objectMapper.writeValueAsString(userDto))
+//                        .characterEncoding(StandardCharsets.UTF_8)
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .accept(MediaType.APPLICATION_JSON))
+//                .andDo(MockMvcResultHandlers.print())
+//                .andExpect(status().is(409));
+//    }
 
 }

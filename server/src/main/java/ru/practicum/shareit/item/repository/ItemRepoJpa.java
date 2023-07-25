@@ -12,7 +12,6 @@ import java.util.List;
 @Repository
 public interface ItemRepoJpa extends JpaRepository<Item, Integer> {
 
-
     List<Item> findAllByOwnerOrderById(User owner,Pageable page);
 
     @Query("select it " +
